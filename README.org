@@ -1,0 +1,3 @@
+#+TITLE: README
+
+* Hello, this is my emacs config. It's work in progress. 

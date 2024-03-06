@@ -15,7 +15,7 @@
 ;; Set up the visible bell
 (setq visible-bell nil)
 
-(set-face-attribute 'default nil :font "Fira Code Retina" :height 150)
+(set-face-attribute 'default nil :font "Fira Code Retina" :height 120)
 
 (load-theme 'wombat)
 
@@ -64,6 +64,7 @@
   (evil-collection-init))
 
 
+(use-package general)
 (require 'general)
 
 ;; * Global Keybindings
