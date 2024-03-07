@@ -225,7 +225,7 @@
  ;; If there is more than one, they won't work right.
  '(helm-minibuffer-history-key "M-p")
  '(package-selected-packages
-   '(dired-single company-box company go-mode tree-sitter-langs tree-sitter lsp-treemacs lsp-ivy helm-lsp lsp-ui nano-emacs rougier/nano-emacs ccls lsp-mode all-the-icons-dired vterm eterm-256color doom-modeline ivy use-package evil-tutor evil-collection command-log-mode))
+   '(centaur-tabs doom-themes dired-single company-box company go-mode tree-sitter-langs tree-sitter lsp-treemacs lsp-ivy helm-lsp lsp-ui nano-emacs rougier/nano-emacs ccls lsp-mode all-the-icons-dired vterm eterm-256color doom-modeline ivy use-package evil-tutor evil-collection command-log-mode))
  '(warning-suppress-log-types '((comp))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -302,7 +302,23 @@
 ;; optionally
 (use-package lsp-ui :commands lsp-ui-mode)
 
-;;(load-file "~/.config/emacs/interface.el")
+(load-file "~/.emacs.d/splash-screen.el")
+(splash-screen)
+(load-file "~/.emacs.d/bespoke-modeline.el")
+  (setq bespoke-modeline-position 'top)
+  ;; Set mode-line height
+  (setq bespoke-modeline-size 3)
+  ;; Show diff lines in mode-line
+  (setq bespoke-modeline-git-diff-mode-line t)
+  ;; Set mode-line cleaner
+  (setq bespoke-modeline-cleaner t)
+  ;; Use mode-line visual bell
+  (setq bespoke-modeline-visual-bell t)
+  ;; Set vc symbol
+  (setq  bespoke-modeline-vc-symbol "G:")
+(require 'bespoke-modeline)
+(bespoke-modeline-mode)
+
 
 ;; if you are ivy user
 (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
@@ -333,3 +349,69 @@
 
 (use-package company-box
   :hook (company-mode . company-box-mode))
+
+
+
+;; Define the custum capture templates
+(setq org-capture-templates
+       '(("t" "todo" entry (file org-default-notes-file)
+	  "* TODO %?\n%u\n%a\n" :clock-in t :clock-resume t)
+	 ("m" "Meeting" entry (file org-default-notes-file)
+	  "* MEETING with %? :MEETING:\n%t" :clock-in t :clock-resume t)
+	 ("d" "Diary" entry (file+datetree "~/org/diary.org")
+	  "* %?\n%U\n" :clock-in t :clock-resume t)
+	 ("i" "Idea" entry (file org-default-notes-file)
+	  "* %? :IDEA: \n%t" :clock-in t :clock-resume t)
+	 ("n" "Next Task" entry (file+headline org-default-notes-file "Tasks")
+	  "** NEXT %? \nDEADLINE: %t") ))
+
+
+;; Set default column view headings: Task Total-Time Time-Stamp
+(setq org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
+
+
+(use-package doom-themes
+  :ensure t
+  :config
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (load-theme 'doom-one t)
+
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  ;; Enable custom neotree theme (all-the-icons must be installed!)
+  (doom-themes-neotree-config)
+  ;; or for treemacs users
+  (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+  (doom-themes-treemacs-config)
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
+
+(require 'org-agenda)
+
+(use-package nerd-icons
+  ;; :custom
+  ;; The Nerd Font you want to use in GUI
+  ;; "Symbols Nerd Font Mono" is the default and is recommended
+  ;; but you can use any other Nerd Font if you want
+  ;; (nerd-icons-font-family "Symbols Nerd Font Mono")
+  )
+
+
+;;;; General Agenda Settings
+
+(setq org-agenda-files (quote ("~/org")))
+(setq org-agenda-tags-column org-tags-column)
+(setq org-agenda-sticky t)
+(setq org-agenda-inhibit-startup nil)
+(setq org-agenda-dim-blocked-tasks nil)
+
+
+(use-package centaur-tabs
+  :demand
+  :config
+  (centaur-tabs-mode t)
+  :bind
+  ("C-<prior>" . centaur-tabs-backward)
+  ("C-<next>" . centaur-tabs-forward))
