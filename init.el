@@ -120,7 +120,19 @@
   ;; bind "SPC a"
   "a" 'org-agenda
   "b" 'counsel-bookmark
-  "c" 'org-capture)
+  "c" 'org-capture
+  "SPC" 'file
+  "ff" 'find-file
+  "l" 'evil-window-right
+  "h" 'evil-window-left
+  "k" 'evil-window-up
+  "j" 'evil-window-bottom
+  "[" 'evil-buffer
+  "wv" 'evil-window-vnew
+  "ws" 'evil-window-new
+  "wq" 'evil-quit
+  "eb" 'eval-buffer
+  )
 ;; `general-create-definer' creates wrappers around `general-def', so
 ;; `evil-global-set-key'-like syntax is also supported
 (my-leader-def 'normal
@@ -213,7 +225,7 @@
  ;; If there is more than one, they won't work right.
  '(helm-minibuffer-history-key "M-p")
  '(package-selected-packages
-   '(company-box company go-mode tree-sitter-langs tree-sitter lsp-treemacs lsp-ivy helm-lsp lsp-ui nano-emacs rougier/nano-emacs ccls lsp-mode all-the-icons-dired vterm eterm-256color doom-modeline ivy use-package evil-tutor evil-collection command-log-mode))
+   '(dired-single company-box company go-mode tree-sitter-langs tree-sitter lsp-treemacs lsp-ivy helm-lsp lsp-ui nano-emacs rougier/nano-emacs ccls lsp-mode all-the-icons-dired vterm eterm-256color doom-modeline ivy use-package evil-tutor evil-collection command-log-mode))
  '(warning-suppress-log-types '((comp))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
