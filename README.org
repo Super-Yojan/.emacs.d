@@ -3,4 +3,4 @@
 * Hello, this is my emacs config. It's work in progress. 
 ** TODO Add a splash screen
 ** TODO Add more keybindings
-** TODO Add magit, projectile, and better lsp features
+** TODO Add magit, projectile, and better lsp feature
