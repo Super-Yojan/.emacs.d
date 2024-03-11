@@ -12,6 +12,12 @@
 (global-display-line-numbers-mode t)
 (setq display-line-numbers 'relative)
 
+(setq inhibit-splash-screen t)
+(add-hook 'after-init-hook #'(lambda ()
+                               (let ((org-agenda-window-setup 'only-window))
+                                 (org-agenda-list nil "z"))))
+
+
 ;; Set up the visible bell
 (setq visible-bell nil)
 
@@ -96,7 +102,7 @@
   :commands vterm
   :config
   (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")
-  (setq vterm-shell "zsh")
+  (setq vterm-shell "bash")
   (setq vterm-max-scrollback 10000))
 
 (use-package dired
@@ -169,9 +175,14 @@
 
 (use-package doom-themes)
 
-(load-theme 'doom-gruvbox t)
+;;(load-theme 'doom-gruvbox t)
 
-
+(setq calendar-location-name "Fairfax, VA") 
+(setq calendar-latitude 38.84)
+(setq calendar-longitude -77.306)
+(use-package theme-changer)
+(require 'theme-changer)
+(change-theme 'doom-one-light 'doom-one-dark)
 
 (use-package nerd-icons
   ;; :custom
@@ -210,3 +221,39 @@
 
 (load-file "~/.emacs.d/00_config_agenda.el")
 (load-file "~/.emacs.d/01_config_keybinds.el")
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(helm popper mood-line elscreen rust-mode which-key vterm use-package tree-sitter-langs shrink-path org-bullets nerd-icons magit lsp-ui lsp-treemacs lsp-ivy go-mode general evil-collection eterm-256color doom-themes dired-single company-box command-log-mode centaur-tabs ccls all-the-icons-dired)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+
+(use-package ido-vertical-mode)
+(require 'ido-vertical-mode)
+(ido-mode 1)
+(ido-vertical-mode 1)
+
+(use-package helm)
+
+(use-package popper
+  :ensure t ; or :straight t
+  :bind (("C-`"   . popper-toggle)
+         ("M-`"   . popper-cycle)
+         ("C-M-`" . popper-toggle-type))
+  :init
+  (setq popper-reference-buffers
+        '("\\*Messages\\*"
+	  "\\*vterm\\*"
+          "Output\\*$"
+          "\\*Async Shell Command\\*"
+          help-mode
+          compilation-mode))
+  (popper-mode +1)
+  (popper-echo-mode +1))                ; For echo area hints

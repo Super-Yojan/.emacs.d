@@ -14,15 +14,22 @@
   "c" 'org-capture
   "SPC" 'dired
   "ff" 'find-file
-  "l" 'evil-window-right
-  "h" 'evil-window-left
-  "k" 'evil-window-up
-  "j" 'evil-window-bottom
-  "[" 'evil-buffer
+  "wl" 'evil-window-right
+  "wh" 'evil-window-left
+  "wk" 'evil-window-up
+  "wj" 'evil-window-bottom
   "wv" 'evil-window-vnew
   "ws" 'evil-window-new
   "wq" 'evil-quit
   "eb" 'eval-buffer
   "op" 'treemacs
   "ot" 'vterm
-  )
+  "ns" 'elscreen-create
+  "]" 'elscreen-next
+  "[" 'elscreen-previous
+  "ti" 'org-clock-in
+  "to" 'org-clock-out
+ )
+
+(define-key evil-normal-state-map (kbd "RET") 'org-toggle-todo-and-fold)
+

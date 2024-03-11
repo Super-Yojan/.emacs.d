@@ -1,7 +1,67 @@
 ;;;; General Agenda Settings
-
+(use-package evil-org
+  :ensure t
+  :after org
+  :hook (org-mode . (lambda () evil-org-mode))
+  :config
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
 
 (setq org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
+(setq org-startup-folded t)
+
+(setq org-use-fast-todo-selection t)
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "NEXT(n)" "PROJ(p)" "|" "DONE(d)")
+	(sequence "TASK(T)")
+	(sequence "AMOTIVATOR(MA)" "TMOTIVATOR(MT)" "CMOTIVATOR(MC)" "|")
+	(sequence "WAITING(w@/!)" "INACTIVE(i)" "SOMEDAY(s)" "|" "CANCELLED(c@/!)")))
+;; Custom colors for the keywords
+(setq org-todo-keyword-faces
+      '(("TODO" :foreground "red" :weight bold)
+	("TASK" :foreground "#5C888B" :weight bold)
+	("NEXT" :foreground "blue" :weight bold)
+	("PROJ" :foreground "magenta" :weight bold)
+	("AMOTIVATOR" :foreground "#F06292" :weight bold)
+	("TMOTIVATOR" :foreground "#AB47BC" :weight bold)
+	("CMOTIVATOR" :foreground "#5E35B1" :weight bold)
+	("DONE" :foreground "forest green" :weight bold)
+	("WAITING" :foreground "orange" :weight bold)
+	("INACTIVE" :foreground "magenta" :weight bold)
+	("SOMEDAY" :foreground "cyan" :weight bold)
+	("CANCELLED" :foreground "forest green" :weight bold)))
+;; Auto-update tags whenever the state is changed
+(setq org-todo-state-tags-triggers
+      '(("CANCELLED" ("CANCELLED" . t))
+	("WAITING" ("SOMEDAY") ("INACTIVE") ("WAITING" . t))
+	("INACTIVE" ("WAITING") ("SOMEDAY") ("INACTIVE" . t))
+	("SOMEDAY" ("WAITING") ("INACTIVE") ("SOMEDAY" . t))
+	(done ("WAITING") ("INACTIVE") ("SOMEDAY"))
+	("TODO" ("WAITING") ("CANCELLED") ("INACTIVE") ("SOMEDAY"))
+	("TASK" ("WAITING") ("CANCELLED") ("INACTIVE") ("SOMEDAY"))
+	("NEXT" ("WAITING") ("CANCELLED") ("INACTIVE") ("SOMEDAY"))
+	("PROJ" ("WAITING") ("CANCELLED") ("INACTIVE") ("SOMEDAY"))
+	("AMOTIVATOR" ("WAITING") ("CANCELLED") ("INACTIVE") ("SOMEDAY"))
+	("TMOTIVATOR" ("WAITING") ("CANCELLED") ("INACTIVE") ("SOMEDAY"))
+	("CMOTIVATOR" ("WAITING") ("CANCELLED") ("INACTIVE") ("SOMEDAY"))
+	("DONE" ("WAITING") ("CANCELLED") ("INACTIVE") ("SOMEDAY"))))
+
+
+;; == Refile ==
+;; Targets include this file and any file contributing to the agenda - up to 9 levels deep
+(setq org-refile-targets (quote ((nil :maxlevel . 9)
+                                 (org-agenda-files :maxlevel . 9))))
+
+;;  Be sure to use the full path for refile setup
+(setq org-refile-use-outline-path t)
+(setq org-outline-path-complete-in-steps nil)
+
+;; Allow refile to create parent tasks with confirmation
+(setq org-refile-allow-creating-parent-nodes 'confirm)
+
+;; == Archive ==
+(setq org-archive-location "archive/%s_archive::")
+(defvar org-archive-file-header-format "#+FILETAGS: ARCHIVE\nArchived entries from file %s\n")
 
 
 (defun dw/org-mode-setup ()
@@ -35,154 +95,19 @@
 (setq org-agenda-inhibit-startup nil)
 (setq org-agenda-dim-blocked-tasks nil)
 
+;; Set the times to display in the time grid
+(setq org-agenda-time-grid
+      (quote
+       ((daily today remove-match)
+        (800 1200 1600 2000)
+        "......" "----------------")))
 
 (setq org-todo-keywords
       '((sequence "TODO(t)" "|" "DONE(d)" "CANCELLED(c)")
         (sequence "TASK(f)" "|" "DONE(d)")
+	(sequence "NEXT(n)" "|" "DOING(d)")
         (sequence "MAYBE(m)" "|" "CANCELLED(c)")))
 
-(setq org-todo-keyword-faces
-      '(("TODO" . (:foreground "DarkOrange1" :weight bold))
-        ("MAYBE" . (:foreground "sea green"))
-        ("DONE" . (:foreground "light sea green"))
-        ("CANCELLED" . (:foreground "forest green"))
-        ("TASK" . (:foreground "blue"))))
-
-(setq org-tags-exclude-from-inheritance '("prj")
-      org-stuck-projects '("+prj/-MAYBE-DONE"
-                           ("TODO" "TASK") ()))
-
-(setq org-agenda-custom-commands
-      '(("h" "Work todos" tags-todo
-         "-personal-doat={.+}-dowith={.+}/!-TASK"
-         ((org-agenda-todo-ignore-scheduled t)))
-        ("H" "All work todos" tags-todo "-personal/!-TASK-MAYBE"
-         ((org-agenda-todo-ignore-scheduled nil)))
-        ("A" "Work todos with doat or dowith" tags-todo
-         "-personal+doat={.+}|dowith={.+}/!-TASK"
-         ((org-agenda-todo-ignore-scheduled nil)))
-        ("j" "TODO dowith and TASK with"
-         ((org-sec-with-view "TODO dowith")
-          (org-sec-where-view "TODO doat")
-          (org-sec-assigned-with-view "TASK with")
-          (org-sec-stuck-with-view "STUCK with")))
-        ("J" "Interactive TODO dowith and TASK with"
-         ((org-sec-who-view "TODO dowith")))))
-
-(defvar org-sec-with "nobody"
-  "Value of the :with: property when doing an
-   org-sec-tag-entry. Change it with org-sec-set-with,
-   set to C-c w")
-
-(defvar org-sec-where ""
-  "Value of the :at: property when doing an
-   org-sec-tag-entry. Change it with org-sec-set-with,
-   set to C-c W")
-
-(defvar org-sec-with-history '()
-  "History list of :with: properties")
-
-(defvar org-sec-where-history '()
-  "History list of :where: properties")
-
-(defun org-sec-set-with ()
-  "Changes the value of the org-sec-with variable for use
-   in the next call of org-sec-tag-entry."
-  (interactive)
-  (setq org-sec-with (read-string "With: " nil
-                                  'org-sec-with-history "")))
-;;(global-set-key "w" 'org-sec-set-with)
-
-(defun org-sec-set-where ()
-  "Changes the value of the org-sec-where variable for use
-   in the next call of org-sec-tag-entry."
-  (interactive)
-  (setq org-sec-where
-        (read-string "Where: " nil
-                     'org-sec-where-history "")))
-;;(global-set-key "W" 'org-sec-set-where)
-
-
-(defun org-sec-set-dowith ()
-  "Sets the value of the dowith property."
-  (interactive)
-  (let ((do-with
-         (read-string "Do with: "
-                      nil 'org-sec-dowith-history "")))
-    (unless (string= do-with "")
-      (org-entry-put nil "dowith" do-with))))
-(global-set-key "\C-cd" 'org-sec-set-dowith)
-
-(defun org-sec-set-doat ()
-  "Sets the value of the doat property."
-  (interactive)
-  (let ((do-at (read-string "Do at: "
-                            nil 'org-sec-doat-history "")))
-    (unless (string= do-at "")
-      (org-entry-put nil "doat" do-at))))
-(global-set-key "\C-cD" 'org-sec-set-doat)
-
-(defun org-sec-tag-entry ()
-  "Adds a :with: property with the value of org-sec-with if
-   defined, an :at: property with the value of org-sec-where
-   if defined, and an :on: property with the current time."
-  (interactive)
-  (save-excursion
-    (org-entry-put nil "on" (format-time-string
-                             (org-time-stamp-format 'long)
-                             (current-time)))
-    (unless (string= org-sec-where "")
-      (org-entry-put nil "at" org-sec-where))
-    (unless (string= org-sec-with "nobody")
-      (org-entry-put nil "with" org-sec-with))))
-(global-set-key "\C-cj" 'org-sec-tag-entry)
-
-
-(defun join (lst sep &optional pre post)
-  (mapconcat (function (lambda (x)
-                         (concat pre x post)))
-             lst sep))
-
-(defun org-sec-with-view (par &optional who)
-  "Select tasks marked as dowith=who, where who
-   defaults to the value of org-sec-with."
-  (org-tags-view '(4) (join (split-string (if who
-                                              who
-                                            org-sec-with))
-                            "|" "dowith=\"" "\"")))
-
-(defun org-sec-where-view (par)
-  "Select tasks marked as doat=org-sec-where."
-  (org-tags-view '(4) (concat "doat={" org-sec-where "}")))
-
-(defun org-sec-assigned-with-view (par &optional who)
-  "Select tasks assigned to who, by default org-sec-with."
-  (org-tags-view '(4)
-                 (concat (join (split-string (if who
-                                                 who
-                                               org-sec-with))
-                               "|")
-                         "/TASK")))
-
-(defun org-sec-stuck-with-view (par &optional who)
-  "Select stuck projects assigned to who, by default
-   org-sec-with."
-  (let ((org-stuck-projects
-         `(,(concat "+prj+"
-                    (join (split-string (if who
-                                            who
-                                          org-sec-with)) "|")
-                    "/-MAYBE-DONE")
-           ("TODO" "TASK") ())))
-    (org-agenda-list-stuck-projects)))
-
-(defun org-sec-who-view (par)
-  "Builds agenda for a given user.  Queried. "
-  (let ((who (read-string "Build todo for user/tag: "
-                          "" "" "")))
-    (org-sec-with-view "TODO dowith" who)
-    (org-sec-assigned-with-view "TASK with" who)
-    (org-sec-stuck-with-view "STUCK with" who)))
 
 (setq org-capture-templates
        '(("t" "todo" entry (file org-default-notes-file)
@@ -195,3 +120,56 @@
 	  "* %? :IDEA: \n%t" :clock-in t :clock-resume t)
 	 ("n" "Next Task" entry (file+headline org-default-notes-file "Tasks")
 	  "** NEXT %? \nDEADLINE: %t") ))
+
+(defun org-toggle-todo-and-fold ()
+  (interactive)
+  (if (equal major-mode 'org-mode)
+  (save-excursion
+    (org-back-to-heading t) ;; Make sure command works even if point is
+                            ;; below target heading
+    (cond ((looking-at "\*+ TODO")
+           (org-todo "DONE")
+           (hide-subtree))
+          ((looking-at "\*+ DONE")
+           (org-todo "TODO")
+           (hide-subtree))
+          (t (message "Can only toggle between TODO and DONE."))))))
+
+
+(defun gs/org-agenda-add-location-string ()
+  "Gets the value of the LOCATION property"
+  (let ((loc (org-entry-get (point) "LOCATION")))
+    (if (> (length loc) 0)
+	(concat "{" loc "} ")
+      "")))
+
+(defun gs/org-agenda-prefix-string ()
+  "Format"
+  (let ((path (org-format-outline-path (org-get-outline-path))) ; "breadcrumb" path
+	(stuck (gs/org-agenda-project-warning))) ; warning for stuck projects
+       (if (> (length path) 0)
+	   (concat stuck ; add stuck warning
+		   " [" path "]") ; add "breadcrumb"
+	 stuck)))
+
+
+(defvar org-agenda-display-settings
+  '((org-agenda-start-with-log-mode t)
+    (org-agenda-log-mode-items '(clock))
+    (org-agenda-prefix-format '((agenda . "  %-12:c%?-12t %(gs/org-agenda-add-location-string)% s")
+				(timeline . "  % s")
+				(todo . "  %-12:c %(gs/org-agenda-prefix-string) ")
+				(tags . "  %-12:c %(gs/org-agenda-prefix-string) ")
+				(search . "  %i %-12:c")))
+    (org-agenda-todo-ignore-deadlines 'near)
+    (org-agenda-todo-ignore-scheduled t))
+  "Display settings for my agenda views.")
+
+(setq org-agenda-custom-commands
+ `(("h" "Habits" agenda "STYLE=\"habit\""
+	 ((org-agenda-overriding-header "Habits")
+	  (org-agenda-sorting-strategy
+	   '(todo-state-down effort-up category-keep))))
+      ("a"
+       ,org-agenda-display-settings)))
+
