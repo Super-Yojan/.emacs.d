@@ -4,3 +4,8 @@ elpa/
 transient/
 projects
 .lsp-session-v1
+*~
+ido.last
+tramp
+tramp/
+.cache/
