@@ -1,0 +1,1 @@
+("~/.emacs.d/" "~/Documents/Lab/Gautam_Lab4_Exercise2/")

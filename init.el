@@ -1,5 +1,19 @@
 ;;; init.el -*- lexical-binding: t; -*-
-
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name
+        "straight/repos/straight.el/bootstrap.el"
+        (or (bound-and-true-p straight-base-dir)
+            user-emacs-directory)))
+      (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 (setq inhibit-startup-message t)
 
 (scroll-bar-mode -1)        ; Disable visible scrollbar
@@ -10,13 +24,36 @@
 (menu-bar-mode -1)            ; Disable the menu bar
 (column-number-mode)
 (global-display-line-numbers-mode t)
-(setq display-line-numbers 'relative)
+(setq global-display-line-numbers 'relative)
 
 (setq inhibit-splash-screen t)
 (add-hook 'after-init-hook #'(lambda ()
                                (let ((org-agenda-window-setup 'only-window))
                                  (org-agenda-list nil "z"))))
 
+
+(defvar my-linum-format-string "%3d")
+
+(add-hook 'linum-before-numbering-hook 'my-linum-get-format-string)
+
+(defun my-linum-get-format-string ()
+  (let* ((width (1+ (length (number-to-string
+                             (count-lines (point-min) (point-max))))))
+         (format (concat "%" (number-to-string width) "d")))
+    (setq my-linum-format-string format)))
+
+(defvar my-linum-current-line-number 0)
+
+(setq linum-format 'my-linum-relative-line-numbers)
+
+(defun my-linum-relative-line-numbers (line-number)
+  (let ((offset (- line-number my-linum-current-line-number)))
+    (propertize (format my-linum-format-string offset) 'face 'linum)))
+
+(defadvice linum-update (around my-linum-update)
+  (let ((my-linum-current-line-number (line-number-at-pos)))
+    ad-do-it))
+(ad-activate 'linum-update)
 
 ;; Set up the visible bell
 (setq visible-bell nil)
@@ -90,7 +127,7 @@
 ;; Disable line numbers for some modes
 (dolist (mode '(term-mode-hook
                 eshell-mode-hook))
-  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+  (add-hook mode #'(lambda () (display-line-numbers-mode 0))))
 
 
 
@@ -128,6 +165,10 @@
 	 (lsp-mode . lsp-enable-which-key-integration))
   :config
   (lsp-enable-which-key-integration t))
+
+
+;;(load "~/.emacs.d/site-vhdl.el") ; Load my VHDL defaults
+(load "~/.emacs.d/google-c-style.el") ; Google's C styleguide
 
 
 (setq lsp-go-analyses '((shadow . t)
@@ -232,7 +273,7 @@
 (ido-mode 1)
 (ido-vertical-mode 1)
 
-(use-package helm)
+(use-package helm :straight t)
 
 (use-package popper
   :ensure t ; or :straight t
@@ -249,3 +290,20 @@
           compilation-mode))
   (popper-mode +1)
   (popper-echo-mode +1))                ; For echo area hints
+
+(use-package vhdl-mode)
+
+(defun prepend-path ( my-path )
+(setq load-path (cons (expand-file-name my-path) load-path)))
+	  
+(defun append-path ( my-path )
+(setq load-path (append load-path (list (expand-file-name my-path)))))
+;; Look first in the directory ~/elisp for elisp files
+(prepend-path "~/elisp")
+;; Load verilog mode only when needed
+(autoload 'verilog-mode "verilog-mode" "Verilog mode" t )
+;; Any files that end in .v, .dv or .sv should be in verilog mode
+(add-to-list 'auto-mode-alist '("\\.[ds]?v\\'" . verilog-mode))
+;; Any files in verilog mode should have their keywords colorized
+(add-hook 'verilog-mode-hook #'(lambda () (font-lock-mode 1)))
+(setq backup-directory-alist            '((".*" . "~/.Trash")))
