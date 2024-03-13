@@ -4,7 +4,7 @@
   :init
   (general-define-key
    :states '(normal motion)
-   :prefix gjs-leader-key
+   :prefix "r"
    "ct" 'cargo-process-test
    "cb" 'cargo-process-build
    "cr" 'cargo-process-run

@@ -128,10 +128,13 @@
     (org-back-to-heading t) ;; Make sure command works even if point is
                             ;; below target heading
     (cond ((looking-at "\*+ TODO")
-           (org-todo "DONE")
+           (org-todo "NEXT")
            (hide-subtree))
           ((looking-at "\*+ DONE")
            (org-todo "TODO")
+           (hide-subtree))
+          ((looking-at "\*+ NEXT")
+           (org-todo "DONE")
            (hide-subtree))
           (t (message "Can only toggle between TODO and DONE."))))))
 

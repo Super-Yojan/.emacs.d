@@ -130,8 +130,6 @@
   (lsp-enable-which-key-integration t))
 
 
-(use-package ccls)
-
 (setq lsp-go-analyses '((shadow . t)
                         (simplifycompositelit . :json-false)))
 
@@ -139,10 +137,6 @@
 ;; optionally
 (use-package lsp-ui :commands lsp-ui-mode)
 
-
-;; if you are ivy user
-(use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
-(use-package lsp-treemacs :commands lsp-treemacs-errors-list)
 
 (use-package tree-sitter)
 (use-package tree-sitter-langs)
@@ -182,7 +176,7 @@
 (setq calendar-longitude -77.306)
 (use-package theme-changer)
 (require 'theme-changer)
-(change-theme 'doom-one-light 'doom-one-dark)
+(change-theme 'doom-one-light 'doom-one)
 
 (use-package nerd-icons
   ;; :custom
@@ -191,14 +185,6 @@
   ;; but you can use any other Nerd Font if you want
   ;; (nerd-icons-font-family "Symbols Nerd Font Mono")
   )
-
-
-
-(use-package rust-mode)
-(require 'rust-mode)
-(add-hook 'rust-mode-hook
-          (lambda () (setq indent-tabs-mode nil)))
-
 
 
 (use-package elscreen)
@@ -221,13 +207,19 @@
 
 (load-file "~/.emacs.d/00_config_agenda.el")
 (load-file "~/.emacs.d/01_config_keybinds.el")
+;;(load-file "~/.emacs.d/02_config_coding_rust.el")
+(load-file "~/.emacs.d/03_config_cpp.el")
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(flycheck-c/c++-googlelint-executable "~/.emacs.d/scripts/cpplint.py")
+ '(flycheck-google-cpplint-filter "-whitespace,+whitespace/braces")
+ '(flycheck-google-cpplint-linelength "120")
+ '(flycheck-google-cpplint-verbose "3")
  '(package-selected-packages
-   '(helm popper mood-line elscreen rust-mode which-key vterm use-package tree-sitter-langs shrink-path org-bullets nerd-icons magit lsp-ui lsp-treemacs lsp-ivy go-mode general evil-collection eterm-256color doom-themes dired-single company-box command-log-mode centaur-tabs ccls all-the-icons-dired)))
+   '(cmake-mode flycheck-google-cpplint google-c-style irony flycheck-rust cargo ido-vertical-mode helm popper mood-line elscreen rust-mode which-key vterm use-package tree-sitter-langs shrink-path org-bullets nerd-icons magit lsp-ui lsp-treemacs lsp-ivy go-mode general evil-collection eterm-256color doom-themes dired-single company-box command-log-mode centaur-tabs ccls all-the-icons-dired)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
