@@ -12,3 +12,6 @@ tramp
 tramp/
 .cache/
 straight/
+.org-id-locations
+init.el.back
+places

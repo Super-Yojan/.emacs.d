@@ -1,16 +1,6 @@
 (use-package rust-mode
   :ensure t
   :defer t
-  :init
-  (general-define-key
-   :states '(normal motion)
-   :prefix "r"
-   "ct" 'cargo-process-test
-   "cb" 'cargo-process-build
-   "cr" 'cargo-process-run
-   "ce" 'cargo-process-bench
-   (kbd "c RET") 'cargo-process-fmt
-   )
   )
 
 (use-package cargo

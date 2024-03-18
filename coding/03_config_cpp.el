@@ -14,7 +14,6 @@
                            (lsp-deferred)
                            (platformio-conditionally-enable)))
 
-
 ;; === CMake ===
 (use-package cmake-mode
   :ensure t
