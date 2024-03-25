@@ -15,7 +15,7 @@
 ;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program. If not, see <http://www.gnu.org/licenses/>
-(setq gc-cons-threshold (* 100 1024 1024))
+;;(setq gc-cons-threshold (* 100 1024 1024))
 (setq inhibit-startup-screen t)
 (setq inhibit-startup-echo-area-message t)
 (setq inhibit-startup-message t)
@@ -26,18 +26,6 @@
 (tool-bar-mode 0)
 (tooltip-mode  0)
 (scroll-bar-mode 0)
-
-(defun custom/kill-this-buffer ()
-  (interactive) (kill-buffer (current-buffer)))
-(global-set-key (kbd "C-x k") 'custom/kill-this-buffer)
-
-(require 'uniquify)
-(setq uniquify-buffer-name-style 'forward)
-
-(save-place-mode 1)
-
-(global-set-key (kbd "C-z") 'undo)
-(global-set-key (kbd "C-x C-x") 'execute-extended-command)
 
 
 (use-package which-key
@@ -95,6 +83,10 @@
 (use-package tree-sitter)
 (use-package tree-sitter-langs)
 
+;; (use-package evil-nerd-commenter
+;;   :bind ("gcc" . evilnc-comment-or-uncomment-lines))
+
 (setq backup-directory-alist            '((".*" . "~/.Trash")))
 
-(provide 'sanity)
+
+

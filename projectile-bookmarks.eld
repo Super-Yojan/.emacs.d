@@ -1,1 +1,1 @@
-("~/.emacs.d/" "~/Documents/Lab/Gautam_Lab4_Exercise2/")
+("~/.emacs.d/" "~/Blimp/Vision-Server/" "~/Documents/flysensei/" "~/Blimp-Senior-Design/BlimpGymEnvironment/" "~/RDC/FlySensei-quad/" "~/Blimp-Senior-Design/3D Models/" "~/Blimp-Senior-Design/Blimp-Simulation/" "~/Blimp-Senior-Design/cartPoleExample/" "~/Blimp-Senior-Design/hardware/" "~/Blimp-Senior-Design/mujoco/" "~/Blimp-Senior-Design/RLBasedControls/" "~/Blimp/BlimpControl/" "~/Blimp/BlimpVR/" "~/Blimp/Flappy/")

@@ -14,7 +14,7 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-
+;;(setq package-enable-at-startup nil)
 ;; Initialize package sources
 (require 'package)
 
@@ -32,14 +32,39 @@
 
 (require 'use-package)
 
+(use-package projectile
+  :ensure t
+  :init
+  (projectile-mode +1)
+  :bind (:map projectile-mode-map
+              ("s-p" . projectile-command-map)
+              ("C-c p" . projectile-command-map)))
 
-(load-file "~/.emacs.d/00_config_agenda.el")
+(setq projectile-project-search-path '("~/Blimp/" "~/Blimp-Senior-Design/" "~/RDC/" ("~/github" . 1)))
+
+(straight-use-package
+  '(nano :type git :host github :repo "rougier/nano-emacs"))
+(straight-use-package 'mini-frame)
+(require 'nano)
+;;(require 'nano-splash)
+;;(require 'nano-modeline)
+;;(require 'nano-mu4e)
+;;(require 'nano-layout)
+;;(require 'nano-minibuffer)
+;;(require 'nano-color)
+;;(require 'notebook-mode)
+;;(format "[[https://www.gnu.org/software/emacs/][Org mode]] %s"
+ ;;       (org-version nil nil))
+
+(getenv "PATH")
+
 (load-file "~/.emacs.d/01_config_keybinds.el")
+(load-file "~/.emacs.d/00_config_agenda.el")
 (load-file "~/.emacs.d/coding/00_lsp_setup.el")
 (load-file "~/.emacs.d/coding/02_config_coding_rust.el")
 (load-file "~/.emacs.d/coding/03_config_cpp.el")
 (load-file "~/.emacs.d/coding/04_config_vhdl.el")
-(load-file "~/.emacs.d/ui/elegance.el")
+(load-file "~/.emacs.d/coding/01_python.el")
+;;(load-file "~/.emacs.d/ui/elegance.el")
 (load-file "~/.emacs.d/ui/sanity.el")
-
-
+;;(load-file "~/.emacs.d/notebook-mode/notebook.el")

@@ -34,3 +34,11 @@
 (use-package lsp-treemacs
   :after lsp)
  
+(defun lsp--make-message (params)
+  "Create a LSP message from PARAMS, after encoding it to a JSON string."
+  (let ((body (lsp--json-serialize params)))
+    (concat "Content-Length: "
+            (number-to-string (1+ (string-bytes body)))
+            "\r\n\r\n"
+            body
+            "\r\n")))

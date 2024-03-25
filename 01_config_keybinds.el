@@ -26,9 +26,10 @@
   :keymaps 'normal
   ;; bind "SPC a"
   "a" 'org-agenda
-  "b" 'counsel-bookmark
+;;  "b" 'counsel-bookmark
   "c" 'org-capture
-  "SPC" 'dired
+  "SPC" 'projectile-find-file
+  "fp" 'projectile-switch-project
   "ff" 'find-file
   "wl" 'evil-window-right
   "wh" 'evil-window-left
@@ -45,11 +46,12 @@
   "[" 'elscreen-previous
   "ti" 'org-clock-in
   "to" 'org-clock-out
+  "/" 'comment-line
  )
 
 
 (define-key evil-normal-state-map (kbd "RET") 'org-toggle-todo-and-fold)
-
+;;(define-key evil-normal-state-map (kbd "S") 'comment-line)
 (defun drmoscovium/dont-arrow ()
   (interactive)
   (message "Arrow keys are bad, you know?"))

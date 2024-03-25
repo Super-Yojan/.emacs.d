@@ -1,4 +1,7 @@
+
 ;;;; General Agenda Settings
+
+(use-package evil-org-agenda)
 (use-package evil-org
   :ensure t
   :after org
@@ -6,6 +9,12 @@
   :config
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
+
+(setq org-tags-exclude-from-inheritance '("prj")
+      org-stuck-projects '("+prj/-MAYBE-DONE"
+                           ("TODO" "TASK") ()))
+
+
 
 (setq org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
 (setq org-startup-folded t)
@@ -16,53 +25,6 @@
 	(sequence "TASK(T)")
 	(sequence "AMOTIVATOR(MA)" "TMOTIVATOR(MT)" "CMOTIVATOR(MC)" "|")
 	(sequence "WAITING(w@/!)" "INACTIVE(i)" "SOMEDAY(s)" "|" "CANCELLED(c@/!)")))
-;; Custom colors for the keywords
-(setq org-todo-keyword-faces
-      '(("TODO" :foreground "red" :weight bold)
-	("TASK" :foreground "#5C888B" :weight bold)
-	("NEXT" :foreground "blue" :weight bold)
-	("PROJ" :foreground "magenta" :weight bold)
-	("AMOTIVATOR" :foreground "#F06292" :weight bold)
-	("TMOTIVATOR" :foreground "#AB47BC" :weight bold)
-	("CMOTIVATOR" :foreground "#5E35B1" :weight bold)
-	("DONE" :foreground "forest green" :weight bold)
-	("WAITING" :foreground "orange" :weight bold)
-	("INACTIVE" :foreground "magenta" :weight bold)
-	("SOMEDAY" :foreground "cyan" :weight bold)
-	("CANCELLED" :foreground "forest green" :weight bold)))
-;; Auto-update tags whenever the state is changed
-(setq org-todo-state-tags-triggers
-      '(("CANCELLED" ("CANCELLED" . t))
-	("WAITING" ("SOMEDAY") ("INACTIVE") ("WAITING" . t))
-	("INACTIVE" ("WAITING") ("SOMEDAY") ("INACTIVE" . t))
-	("SOMEDAY" ("WAITING") ("INACTIVE") ("SOMEDAY" . t))
-	(done ("WAITING") ("INACTIVE") ("SOMEDAY"))
-	("TODO" ("WAITING") ("CANCELLED") ("INACTIVE") ("SOMEDAY"))
-	("TASK" ("WAITING") ("CANCELLED") ("INACTIVE") ("SOMEDAY"))
-	("NEXT" ("WAITING") ("CANCELLED") ("INACTIVE") ("SOMEDAY"))
-	("PROJ" ("WAITING") ("CANCELLED") ("INACTIVE") ("SOMEDAY"))
-	("AMOTIVATOR" ("WAITING") ("CANCELLED") ("INACTIVE") ("SOMEDAY"))
-	("TMOTIVATOR" ("WAITING") ("CANCELLED") ("INACTIVE") ("SOMEDAY"))
-	("CMOTIVATOR" ("WAITING") ("CANCELLED") ("INACTIVE") ("SOMEDAY"))
-	("DONE" ("WAITING") ("CANCELLED") ("INACTIVE") ("SOMEDAY"))))
-
-
-;; == Refile ==
-;; Targets include this file and any file contributing to the agenda - up to 9 levels deep
-(setq org-refile-targets (quote ((nil :maxlevel . 9)
-                                 (org-agenda-files :maxlevel . 9))))
-
-;;  Be sure to use the full path for refile setup
-(setq org-refile-use-outline-path t)
-(setq org-outline-path-complete-in-steps nil)
-
-;; Allow refile to create parent tasks with confirmation
-(setq org-refile-allow-creating-parent-nodes 'confirm)
-
-;; == Archive ==
-(setq org-archive-location "archive/%s_archive::")
-(defvar org-archive-file-header-format "#+FILETAGS: ARCHIVE\nArchived entries from file %s\n")
-
 
 (defun dw/org-mode-setup ()
   (org-indent-mode)
@@ -91,7 +53,7 @@
 (setq org-agenda-files (quote ("~/org")))
 (setq org-default-notes-file "~/org/refile.org")
 (setq org-agenda-tags-column org-tags-column)
-(setq org-agenda-sticky t)
+(setq org-agenda-sticky nil)
 (setq org-agenda-inhibit-startup nil)
 (setq org-agenda-dim-blocked-tasks nil)
 
@@ -169,10 +131,10 @@
   "Display settings for my agenda views.")
 
 (setq org-agenda-custom-commands
- `(("h" "Habits" agenda "STYLE=\"habit\""
+ `(("h" "Work todos" agenda "STYLE=\"habit\""
 	 ((org-agenda-overriding-header "Habits")
 	  (org-agenda-sorting-strategy
 	   '(todo-state-down effort-up category-keep))))
-      ("a"
+      ("b"
        ,org-agenda-display-settings)))
 

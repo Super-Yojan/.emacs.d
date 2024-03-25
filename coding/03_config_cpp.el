@@ -1,9 +1,9 @@
 ;; === General Configuration
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 
-(use-package ccls)
-(require 'ccls)
-(setq ccls-executable "/opt/homebrew/bin/ccls")
+;;(use-package ccls)
+;;(require 'ccls)
+;;(setq ccls-executable "/opt/homebrew/bin/ccls")
 
 (use-package platformio-mode)
 (require 'platformio-mode)

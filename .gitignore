@@ -15,3 +15,5 @@ straight/
 .org-id-locations
 init.el.back
 places
+notebook-mode
+projectile-bookmarsk.eld
