@@ -21,6 +21,7 @@
 (setq inhibit-startup-message t)
 (setq initial-scratch-message nil)
 (setq initial-major-mode 'org-mode)
+(setq line-number-mode t)
 (setq-default indent-tabs-mode nil)
 (setq pop-up-windows nil)
 (tool-bar-mode 0)
@@ -40,8 +41,6 @@
 (use-package all-the-icons-dired
   :hook (dired-mode . all-the-icons-dired-mode))
 
-(use-package elscreen)
-(elscreen-start)
 
 (use-package ido-vertical-mode)
 (require 'ido-vertical-mode)
@@ -66,7 +65,6 @@
   (popper-mode +1)
   (popper-echo-mode +1))                ; For echo area hints
 
-(setq elscreen-display-tab nil)
 
 (use-package dired
   :ensure nil
@@ -82,7 +80,7 @@
 
 (use-package tree-sitter)
 (use-package tree-sitter-langs)
-
+(require 'tree-sitter)
 ;; (use-package evil-nerd-commenter
 ;;   :bind ("gcc" . evilnc-comment-or-uncomment-lines))
 

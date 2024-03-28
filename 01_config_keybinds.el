@@ -42,11 +42,12 @@
   "op" 'treemacs
   "ot" 'vterm
   "ns" 'elscreen-create
-  "]" 'elscreen-next
-  "[" 'elscreen-previous
+  "]" 'evil-next-buffer
+  "[" 'evil-prev-buffer
   "ti" 'org-clock-in
   "to" 'org-clock-out
   "/" 'comment-line
+  "x" 'helm-M-x
  )
 
 

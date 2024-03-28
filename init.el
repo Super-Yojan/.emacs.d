@@ -22,7 +22,7 @@
                          ("org" . "https://orgmode.org/elpa/")
                          ("elpa" . "https://elpa.gnu.org/packages/")))
 
-(package-initialize)
+;;(package-initialize)
 (unless package-archive-contents
  (package-refresh-contents))
 
@@ -46,6 +46,27 @@
   '(nano :type git :host github :repo "rougier/nano-emacs"))
 (straight-use-package 'mini-frame)
 (require 'nano)
+
+(straight-use-package
+
+ '(svg-tag-mode :type git :host github :repo "rougier/svg-tag-mode"))
+
+(require 'svg-tag-mode)
+
+(setq svg-tag-tags
+      '(("TODO" . ((lambda (tag) (svg-tag-make "TODO"))))))
+
+(straight-use-package
+ '(notebook-mode :type git :host github :repo "rougier/notebook-mode"))
+
+(require 'notebook)
+
+(use-package perspective
+  :straight t  ; use `:straight t` if using straight.el!
+  :bind (("C-x k" . persp-kill-buffer*))
+  :init
+  (persp-mode))
+
 ;;(require 'nano-splash)
 ;;(require 'nano-modeline)
 ;;(require 'nano-mu4e)
@@ -68,3 +89,17 @@
 ;;(load-file "~/.emacs.d/ui/elegance.el")
 (load-file "~/.emacs.d/ui/sanity.el")
 ;;(load-file "~/.emacs.d/notebook-mode/notebook.el")
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("571661a9d205cb32dfed5566019ad54f5bb3415d2d88f7ea1d00c7c794e70a36" default))
+ '(helm-minibuffer-history-key "M-p"))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
