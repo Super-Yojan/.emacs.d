@@ -61,12 +61,15 @@
 
 (require 'notebook)
 
+
 (use-package perspective
-  :straight t  ; use `:straight t` if using straight.el!
-  :bind (("C-x k" . persp-kill-buffer*))
+  :straight t
+  :bind
+  ("C-x C-b" . persp-list-buffers)         ; or use a nicer switcher, see below
+  :custom
+  (persp-mode-prefix-key (kbd "C-c M-p"))  ; pick your own prefix key here
   :init
   (persp-mode))
-
 ;;(require 'nano-splash)
 ;;(require 'nano-modeline)
 ;;(require 'nano-mu4e)
@@ -95,7 +98,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("571661a9d205cb32dfed5566019ad54f5bb3415d2d88f7ea1d00c7c794e70a36" default))
+   '("691d671429fa6c6d73098fc6ff05d4a14a323ea0a18787daeb93fde0e48ab18b" "571661a9d205cb32dfed5566019ad54f5bb3415d2d88f7ea1d00c7c794e70a36" default))
  '(helm-minibuffer-history-key "M-p"))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
