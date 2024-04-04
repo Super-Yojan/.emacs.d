@@ -154,3 +154,7 @@
       ("b"
        ,org-agenda-display-settings)))
 
+(require 'org)
+(use-package org-roam
+  :straight t
+  )

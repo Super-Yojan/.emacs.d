@@ -1,25 +1,3 @@
-#+TITLE: My Emacs config
-#+Author: Yojan Gautam
-#+Email: gautamyojan0@gmail.com
-#+Options: num:nil
-
-* Emacs Config
-
-** Motivation
-Having a proper system to organize your life and notes is
-crucial. As a Computer Engineering student, I learn a lot of new topics
-every day. So far I have been able to keep them in my mind, there has
-been multiple times when I said to myself "only if I had the notes from
-that one time when I already solved this problem". Having a proper system
-that allows me to easily retrive information that I already solved will
-save a lot of time.
-
-** Requirements
-Since my works consists of developing, researching, writing, and managing
-each part will have its own requirements.
-
-*** Package manager
-#+BEGIN_SRC emacs-lisp
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name
@@ -36,7 +14,6 @@ each part will have its own requirements.
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-(straight-use-package 'org)
 ;;(setq package-enable-at-startup nil)
 ;; Initialize package sources
 (require 'package)
@@ -54,12 +31,9 @@ each part will have its own requirements.
    (package-install 'use-package))
 
 (require 'use-package)
-#+END_SRC
+(straight-use-package 'org)
 
-*** Evil and Key binds
-I cannot live with vim keybinds so here we go
-#+BEGIN_SRC emacs-lisp
-    (use-package general
+(use-package general
       :ensure t)
     (use-package evil
       :ensure t
@@ -122,149 +96,130 @@ I cannot live with vim keybinds so here we go
 (evil-global-set-key 'motion (kbd "<down>") 'drmoscovium/dont-arrow)
 (evil-global-set-key 'motion (kbd "<up>") 'drmoscovium/dont-arrow)
 
-
-#+END_SRC
-
-*** UI
-Some default to keep me sane
-#+BEGIN_SRC emacs-lisp
-  (setq inhibit-startup-screen t)
-  (setq inhibit-startup-echo-area-message t)
-  (setq inhibit-startup-message t)
-  (setq initial-scratch-message nil)
-  (setq initial-major-mode 'org-mode)
-  (setq line-number-mode t)
-  (setq-default indent-tabs-mode nil)
-  (setq pop-up-windows nil)
-  (tool-bar-mode 0)
-  (tooltip-mode  0)
-  (scroll-bar-mode 0)
+(setq inhibit-startup-screen t)
+(setq inhibit-startup-echo-area-message t)
+(setq inhibit-startup-message t)
+(setq initial-scratch-message nil)
+(setq initial-major-mode 'org-mode)
+(setq line-number-mode t)
+(setq-default indent-tabs-mode nil)
+(setq pop-up-windows nil)
+(tool-bar-mode 0)
+(tooltip-mode  0)
+(scroll-bar-mode 0)
 
 
-  (use-package which-key
-    :init (which-key-mode)
-    :diminish which-key-mode
-    :config
-    (setq which-key-idle-delay 0.3))
+(use-package which-key
+  :init (which-key-mode)
+  :diminish which-key-mode
+  :config
+  (setq which-key-idle-delay 0.3))
 
-  (use-package eterm-256color
-    :hook (term-mode . eterm-256color-mode))
+(use-package eterm-256color
+  :hook (term-mode . eterm-256color-mode))
 
-  (use-package all-the-icons-dired
-    :hook (dired-mode . all-the-icons-dired-mode))
-
-
-  (use-package ido-vertical-mode)
-  (require 'ido-vertical-mode)
-  (ido-mode 1)
-  (ido-vertical-mode 1)
-
-  (use-package helm :straight t)
-
-  (use-package popper
-    :ensure t ; or :straight t
-    :bind (("C-`"   . popper-toggle)
-           ("M-`"   . popper-cycle)
-           ("C-M-`" . popper-toggle-type))
-    :init
-    (setq popper-reference-buffers
-          '("\\*Messages\\*"
-        "\\*vterm\\*"
-            "Output\\*$"
-            "\\*Async Shell Command\\*"
-            help-mode
-            compilation-mode))
-    (popper-mode +1)
-    (popper-echo-mode +1))                ; For echo area hints
+(use-package all-the-icons-dired
+  :hook (dired-mode . all-the-icons-dired-mode))
 
 
-  (use-package dired
-    :ensure nil
-    :commands (dired dired-jump)
-    :bind (("C-x C-j" . dired-jump))
-    :config
-    (evil-collection-define-key 'normal 'dired-mode-map
-      "h" 'dired-up-directory
-      "l" 'dired-find-file))
+(use-package ido-vertical-mode)
+(require 'ido-vertical-mode)
+(ido-mode 1)
+(ido-vertical-mode 1)
 
-  (use-package dired-single)
+(use-package helm :straight t)
 
-
-  (use-package tree-sitter)
-  (use-package tree-sitter-langs)
-  (require 'tree-sitter)
-  (require 'tree-sitter-langs)
-  ;; (use-package evil-nerd-commenter
-  ;;   :bind ("gcc" . evilnc-comment-or-uncomment-lines))
-
-  (setq backup-directory-alist            '((".*" . "~/.Trash")))
-
-
-
-#+END_SRC
+(use-package popper
+  :ensure t ; or :straight t
+  :bind (("C-`"   . popper-toggle)
+         ("M-`"   . popper-cycle)
+         ("C-M-`" . popper-toggle-type))
+  :init
+  (setq popper-reference-buffers
+        '("\\*Messages\\*"
+      "\\*vterm\\*"
+          "Output\\*$"
+          "\\*Async Shell Command\\*"
+          help-mode
+          compilation-mode))
+  (popper-mode +1)
+  (popper-echo-mode +1))                ; For echo area hints
 
 
-I like to keep my ui minimal, and nano emacs is perfect for this.
+(use-package dired
+  :ensure nil
+  :commands (dired dired-jump)
+  :bind (("C-x C-j" . dired-jump))
+  :config
+  (evil-collection-define-key 'normal 'dired-mode-map
+    "h" 'dired-up-directory
+    "l" 'dired-find-file))
 
-#+BEGIN_SRC emacs-lisp
-          (straight-use-package
-            '(nano :type git :host github :repo "rougier/nano-emacs"))
-          (straight-use-package
-            '(org-margin :type git :host github :repo "rougier/org-margin"))
-          (require 'org-margin)
-        ;; TODO Add hook to enable org-margin
-          (straight-use-package 'mini-frame)
-        (require 'mini-frame)
-          (require 'nano)
-  (require 'nano-faces)
+(use-package dired-single)
 
-          (straight-use-package
-           '(svg-tag-mode :type git :host github :repo "rougier/svg-tag-mode"))
-          (require 'svg-tag-mode)
-        (svg-tag-mode 1)
 
-          (setq svg-tag-tags
-                '(("TODO" . ((lambda (tag) (svg-tag-make "TODO"))))))
+(use-package tree-sitter)
+(use-package tree-sitter-langs)
+(require 'tree-sitter)
+(require 'tree-sitter-langs)
+;; (use-package evil-nerd-commenter
+;;   :bind ("gcc" . evilnc-comment-or-uncomment-lines))
 
-        (setq svg-tag-tags
-              '(("DONE" . ((lambda (tag) (svg-tag-make "DONE"))))))
+(setq backup-directory-alist            '((".*" . "~/.Trash")))
 
-          (straight-use-package
-           '(notebook-mode :type git :host github :repo "rougier/notebook-mode"))
-          (require 'notebook)
+(straight-use-package
+          '(nano :type git :host github :repo "rougier/nano-emacs"))
+        (straight-use-package
+          '(org-margin :type git :host github :repo "rougier/org-margin"))
+        (require 'org-margin)
+      ;; TODO Add hook to enable org-margin
+        (straight-use-package 'mini-frame)
+      (require 'mini-frame)
+        (require 'nano)
+(require 'nano-faces)
 
         (straight-use-package
-         '(nano-vertico :type git :host github :repo "rougier/nano-vertico"))
-        (require 'nano-vertico)
-        (nano-vertico-mode 1)
+         '(svg-tag-mode :type git :host github :repo "rougier/svg-tag-mode"))
+        (require 'svg-tag-mode)
+      (svg-tag-mode 1)
 
-      ;;(straight-use-package
-       ;;  '(svg-lib :type git :host github :repo "rougier/svg-lib"))
-        ;;(require 'svg-lib)
+        (setq svg-tag-tags
+              '(("TODO" . ((lambda (tag) (svg-tag-make "TODO"))))))
 
+      (setq svg-tag-tags
+            '(("DONE" . ((lambda (tag) (svg-tag-make "DONE"))))))
 
-    (straight-use-package
-     '(org-imenu :type git :host github :repo "rougier/org-imenu"))
+        (straight-use-package
+         '(notebook-mode :type git :host github :repo "rougier/notebook-mode"))
+        (require 'notebook)
 
-    (straight-use-package
-     '(pdf-drop-mode :type git :host github :repo "rougier/pdf-drop-mode"))
-    (straight-use-package
-     '(org-bib-mode :type git :host github :repo "rougier/org-bib-mode"))
+      (straight-use-package
+       '(nano-vertico :type git :host github :repo "rougier/nano-vertico"))
+      (require 'nano-vertico)
+      (nano-vertico-mode 1)
 
-    (straight-use-package
-     '(nano-minibuffer :type git :host github :repo "rougier/nano-minibuffer"))
-
-    (require 'nano-minibuffer)
-
-  (straight-use-package '(nano-sidebar :type git :host github
-                                       :repo "rougier/nano-sidebar"))
-  (require 'nano-sidebar)
-
-#+END_SRC
+    ;;(straight-use-package
+     ;;  '(svg-lib :type git :host github :repo "rougier/svg-lib"))
+      ;;(require 'svg-lib)
 
 
-Config for side buffer, I don't think I will use it tho
-#+BEGIN_SRC emacs-lisp
+  (straight-use-package
+   '(org-imenu :type git :host github :repo "rougier/org-imenu"))
+
+  (straight-use-package
+   '(pdf-drop-mode :type git :host github :repo "rougier/pdf-drop-mode"))
+  (straight-use-package
+   '(org-bib-mode :type git :host github :repo "rougier/org-bib-mode"))
+
+  (straight-use-package
+   '(nano-minibuffer :type git :host github :repo "rougier/nano-minibuffer"))
+
+  (require 'nano-minibuffer)
+
+(straight-use-package '(nano-sidebar :type git :host github
+                                     :repo "rougier/nano-sidebar"))
+(require 'nano-sidebar)
+
 (defun ibuffer-advice (format)
   (with-current-buffer "*Ibuffer*"
     (save-excursion
@@ -352,44 +307,23 @@ Config for side buffer, I don't think I will use it tho
 (advice-add 'ibuffer-update-title-and-summary :after #'ibuffer-advice)
 (add-hook 'ibuffer-mode-hook #'ibuffer-setup)
 
-#+END_SRC
+(require 'eglot)
+    (use-package company
+      :ensure t
+    :init (global-company-mode)
+    )
+      (require 'company)
+      (straight-use-package
+       '(yasnippet :type git :host github :repo "joaotavora/yasnippet"))
 
+    (require 'yasnippet)
+  (use-package yasnippet-snippets
+    :straight t)
 
-*** Developing
-eglot is the default lsp client for emacs from v29 and I will be using
-it.
+(yas-reload-all)
+    (yas-global-mode 1)
 
-#+BEGIN_SRC emacs-lisp
-        (require 'eglot)
-      (use-package company
-        :ensure t
-      :init (global-company-mode)
-      )
-        (require 'company)
-        (straight-use-package
-         '(yasnippet :type git :host github :repo "joaotavora/yasnippet"))
-
-      (require 'yasnippet)
-    (use-package yasnippet-snippets
-      :straight t)
-
-  (yas-reload-all)
-      (yas-global-mode 1)
-
-#+END_SRC
-
-The languages that I use often are:
-1. Python
-2. Go
-3. JS
-4. C++
-5. Rust
-6. Elisp
-7. VHDL/Verilog
-   
-**** Go
-#+BEGIN_SRC emacs-lisp
-       (use-package go-mode
+(use-package go-mode
       :straight t)
     (require 'go-mode)
           (require 'project)
@@ -422,57 +356,20 @@ The languages that I use often are:
           (call-interactively 'eglot-code-action-organize-imports))
       nil t)
 
+(use-package org-roam
+  :straight t
+  )
 
+(require 'org-roam)
+(setq org-roam-directory (file-truename "~/org"))
+(org-roam-db-autosync-mode)
 
+;; Don't know what it does but it's here
+(setq org-roam-node-display-template
+    (concat "${title:*} "
+            (propertize "${tags:10}" 'face 'org-tag)))
 
-
-
-#+END_SRC
-
-
-**** Cpp
-
-#+BEGIN_quote 
-     (add-to-list 'auto-mode-alist '("\\.h\\'" . c-or-c++-mode)
-  '("\\.cpp\\'" . c-or-c++-mode)
-  '("\\.c\\'" .  c-or-c++-mode)
-    )
-
-  (add-hook 'c-or-c++-mode-hook 'eglot-ensure)
-
-#+END_quote
-Platformio is great tool for embedded development, using my fork because
-  I want to change some of the config on it.
-
-#+BEGIN_COMMENT
-  (straight-use-package platformio-mode
-    '(platformio-mode :type git :host github :repo "Super-Yojan/PlatformIO-Mode")
-    )
-      (require 'platformio-mode)
-#+END_COMMENT
-
-The easiest 
-
-*** Note Taking
-
-1. Be able to capture any idea that comes to my head, and look at it later.
-**** Org Roam
-#+BEGIN_COMMENT
-  (use-package org-roam
-    :straight t
-    )
-
-  (require 'org-roam)
-  (setq org-roam-directory (file-truename "~/org"))
-  (org-roam-db-autosync-mode)
-
-  ;; Don't know what it does but it's here
-  (setq org-roam-node-display-template
-      (concat "${title:*} "
-              (propertize "${tags:10}" 'face 'org-tag)))
-
-   (("d" "default" plain "%?"
-  :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
-                     "#+title: ${title}\n")
-  :unnarrowed t))
-#+END_COMMENT
+ (("d" "default" plain "%?"
+:target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                   "#+title: ${title}\n")
+:unnarrowed t))
