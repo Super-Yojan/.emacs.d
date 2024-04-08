@@ -14,6 +14,7 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
+;;(straight-use-package 'org)
 ;;(setq package-enable-at-startup nil)
 ;; Initialize package sources
 (require 'package)
@@ -31,13 +32,32 @@
    (package-install 'use-package))
 
 (require 'use-package)
-(straight-use-package 'org)
+
+(use-package projectile
+    :ensure t
+    :init
+    (projectile-mode +1)
+    :bind (:map projectile-mode-map
+                ("s-p" . projectile-command-map)
+                ("C-c p" . projectile-command-map)))
+
+  (setq projectile-project-search-path '("~/Blimp/" "~/Blimp-Senior-Design/" "~/RDC/" ("~/github" . 1)))
+  
+(use-package perspective
+  :straight t
+  :bind
+  ("C-x C-b" . persp-list-buffers)         ; or use a nicer switcher, see below
+  :custom
+  (persp-mode-prefix-key (kbd "C-c M-p"))  ; pick your own prefix key here
+  :init
+  (persp-mode))
 
 (use-package general
       :ensure t)
     (use-package evil
       :ensure t
       :init
+      (setq evil-want-keybinding nil)
       (setq evil-want-integration t)
       :config
       (evil-mode 1))
@@ -81,7 +101,7 @@
     "x" 'helm-M-x
     )
 
-  (define-key evil-normal-state-map (kbd "RET") 'org-toggle-todo-and-fold)
+;;  (define-key evil-normal-state-map (kbd "RET") 'org-toggle-todo-and-fold)
 ;;(define-key evil-normal-state-map (kbd "S") 'comment-line)
 (defun drmoscovium/dont-arrow ()
   (interactive)
@@ -97,128 +117,137 @@
 (evil-global-set-key 'motion (kbd "<up>") 'drmoscovium/dont-arrow)
 
 (setq inhibit-startup-screen t)
-(setq inhibit-startup-echo-area-message t)
-(setq inhibit-startup-message t)
-(setq initial-scratch-message nil)
-(setq initial-major-mode 'org-mode)
-(setq line-number-mode t)
-(setq-default indent-tabs-mode nil)
-(setq pop-up-windows nil)
-(tool-bar-mode 0)
-(tooltip-mode  0)
-(scroll-bar-mode 0)
+        (setq inhibit-startup-echo-area-message t)
+        (setq inhibit-startup-message t)
+        (setq initial-scratch-message nil)
+        (setq initial-major-mode 'org-mode)
+        (setq line-number-mode t)
+        (setq-default indent-tabs-mode nil)
+        (setq pop-up-windows nil)
+        (tool-bar-mode 0)
+        (tooltip-mode  0)
+        (scroll-bar-mode 0)
 
 
-(use-package which-key
-  :init (which-key-mode)
-  :diminish which-key-mode
-  :config
-  (setq which-key-idle-delay 0.3))
+        (use-package which-key
+        :straight t
+          :init (which-key-mode)
+          :diminish which-key-mode
+          :config
+          (setq which-key-idle-delay 0.3))
 
-(use-package eterm-256color
-  :hook (term-mode . eterm-256color-mode))
+        (use-package eterm-256color
+          :hook (term-mode . eterm-256color-mode))
 
-(use-package all-the-icons-dired
-  :hook (dired-mode . all-the-icons-dired-mode))
-
-
-(use-package ido-vertical-mode)
-(require 'ido-vertical-mode)
-(ido-mode 1)
-(ido-vertical-mode 1)
-
-(use-package helm :straight t)
-
-(use-package popper
-  :ensure t ; or :straight t
-  :bind (("C-`"   . popper-toggle)
-         ("M-`"   . popper-cycle)
-         ("C-M-`" . popper-toggle-type))
-  :init
-  (setq popper-reference-buffers
-        '("\\*Messages\\*"
-      "\\*vterm\\*"
-          "Output\\*$"
-          "\\*Async Shell Command\\*"
-          help-mode
-          compilation-mode))
-  (popper-mode +1)
-  (popper-echo-mode +1))                ; For echo area hints
+        (use-package all-the-icons-dired
+    :straight t
+          :hook (dired-mode . all-the-icons-dired-mode))
 
 
-(use-package dired
-  :ensure nil
-  :commands (dired dired-jump)
-  :bind (("C-x C-j" . dired-jump))
-  :config
-  (evil-collection-define-key 'normal 'dired-mode-map
-    "h" 'dired-up-directory
-    "l" 'dired-find-file))
+        (use-package ido-vertical-mode
+      :straight t
+      )
+        (require 'ido-vertical-mode)
+        (ido-mode 1)
+        (ido-vertical-mode 1)
 
-(use-package dired-single)
+        (use-package helm :straight t)
+
+        (use-package popper
+          :ensure t ; or :straight t
+          :bind (("C-`"   . popper-toggle)
+                 ("M-`"   . popper-cycle)
+                 ("C-M-`" . popper-toggle-type))
+          :init
+          (setq popper-reference-buffers
+                '("\\*Messages\\*"
+              "\\*vterm\\*"
+                  "Output\\*$"
+                  "\\*Async Shell Command\\*"
+                  help-mode
+                  compilation-mode))
+          (popper-mode +1)
+          (popper-echo-mode +1))                ; For echo area hints
 
 
-(use-package tree-sitter)
-(use-package tree-sitter-langs)
-(require 'tree-sitter)
-(require 'tree-sitter-langs)
-;; (use-package evil-nerd-commenter
-;;   :bind ("gcc" . evilnc-comment-or-uncomment-lines))
+        (use-package dired
+          :ensure nil
+          :commands (dired dired-jump)
+          :bind (("C-x C-j" . dired-jump))
+          :config
+          (evil-collection-define-key 'normal 'dired-mode-map
+            "h" 'dired-up-directory
+            "l" 'dired-find-file))
 
-(setq backup-directory-alist            '((".*" . "~/.Trash")))
+        (use-package dired-single
+  :ensure t)
+
+
+        (use-package tree-sitter
+
+    :straight t
+    )
+        (use-package tree-sitter-langs
+:straight t
+)
+        (require 'tree-sitter)
+        (require 'tree-sitter-langs)
+        ;; (use-package evil-nerd-commenter
+        ;;   :bind ("gcc" . evilnc-comment-or-uncomment-lines))
+
+        (setq backup-directory-alist            '((".*" . "~/.Trash")))
 
 (straight-use-package
-          '(nano :type git :host github :repo "rougier/nano-emacs"))
-        (straight-use-package
-          '(org-margin :type git :host github :repo "rougier/org-margin"))
-        (require 'org-margin)
-      ;; TODO Add hook to enable org-margin
-        (straight-use-package 'mini-frame)
-      (require 'mini-frame)
-        (require 'nano)
-(require 'nano-faces)
+            '(nano :type git :host github :repo "rougier/nano-emacs"))
+          (straight-use-package
+            '(org-margin :type git :host github :repo "rougier/org-margin"))
+          (require 'org-margin)
+        ;; TODO Add hook to enable org-margin
+          (straight-use-package 'mini-frame)
+        (require 'mini-frame)
+          (require 'nano)
+  (require 'nano-faces)
 
-        (straight-use-package
-         '(svg-tag-mode :type git :host github :repo "rougier/svg-tag-mode"))
-        (require 'svg-tag-mode)
-      (svg-tag-mode 1)
+          (straight-use-package
+           '(svg-tag-mode :type git :host github :repo "rougier/svg-tag-mode"))
+          (require 'svg-tag-mode)
+        (svg-tag-mode 1)
+
+          (setq svg-tag-tags
+                '(("TODO" . ((lambda (tag) (svg-tag-make "TODO"))))))
 
         (setq svg-tag-tags
-              '(("TODO" . ((lambda (tag) (svg-tag-make "TODO"))))))
+              '(("DONE" . ((lambda (tag) (svg-tag-make "DONE"))))))
 
-      (setq svg-tag-tags
-            '(("DONE" . ((lambda (tag) (svg-tag-make "DONE"))))))
+          (straight-use-package
+           '(notebook-mode :type git :host github :repo "rougier/notebook-mode"))
+          (require 'notebook)
+  
+(add-hook 'org-mode-hook 'notebook-mode)
 
         (straight-use-package
-         '(notebook-mode :type git :host github :repo "rougier/notebook-mode"))
-        (require 'notebook)
+         '(nano-vertico :type git :host github :repo "rougier/nano-vertico"))
+        (require 'nano-vertico)
+        (nano-vertico-mode 1)
 
-      (straight-use-package
-       '(nano-vertico :type git :host github :repo "rougier/nano-vertico"))
-      (require 'nano-vertico)
-      (nano-vertico-mode 1)
-
-    ;;(straight-use-package
-     ;;  '(svg-lib :type git :host github :repo "rougier/svg-lib"))
-      ;;(require 'svg-lib)
+      ;;(straight-use-package
+       ;;  '(svg-lib :type git :host github :repo "rougier/svg-lib"))
+        ;;(require 'svg-lib)
 
 
-  (straight-use-package
-   '(org-imenu :type git :host github :repo "rougier/org-imenu"))
+    (straight-use-package
+     '(pdf-drop-mode :type git :host github :repo "rougier/pdf-drop-mode"))
+    (straight-use-package
+     '(org-bib-mode :type git :host github :repo "rougier/org-bib-mode"))
 
-  (straight-use-package
-   '(pdf-drop-mode :type git :host github :repo "rougier/pdf-drop-mode"))
-  (straight-use-package
-   '(org-bib-mode :type git :host github :repo "rougier/org-bib-mode"))
+    (straight-use-package
+     '(nano-minibuffer :type git :host github :repo "rougier/nano-minibuffer"))
 
-  (straight-use-package
-   '(nano-minibuffer :type git :host github :repo "rougier/nano-minibuffer"))
+    (require 'nano-minibuffer)
 
-  (require 'nano-minibuffer)
-
-(straight-use-package '(nano-sidebar :type git :host github
-                                     :repo "rougier/nano-sidebar"))
-(require 'nano-sidebar)
+  (straight-use-package '(nano-sidebar :type git :host github
+                                       :repo "rougier/nano-sidebar"))
+  (require 'nano-sidebar)
 
 (defun ibuffer-advice (format)
   (with-current-buffer "*Ibuffer*"
@@ -356,20 +385,16 @@
           (call-interactively 'eglot-code-action-organize-imports))
       nil t)
 
+(use-package python-mode
+:ensure t
+  :custom
+(python-shell-interpreter "python3")
+:hook (python-mode . lsp-deferred))
+
 (use-package org-roam
-  :straight t
+  :ensure t
   )
 
 (require 'org-roam)
 (setq org-roam-directory (file-truename "~/org"))
 (org-roam-db-autosync-mode)
-
-;; Don't know what it does but it's here
-(setq org-roam-node-display-template
-    (concat "${title:*} "
-            (propertize "${tags:10}" 'face 'org-tag)))
-
- (("d" "default" plain "%?"
-:target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
-                   "#+title: ${title}\n")
-:unnarrowed t))
