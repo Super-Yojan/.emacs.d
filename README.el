@@ -214,10 +214,14 @@
         (svg-tag-mode 1)
 
           (setq svg-tag-tags
-                '(("TODO" . ((lambda (tag) (svg-tag-make "TODO"))))))
+                '((":TODO:" . ((lambda (tag) (svg-tag-make tag))))))
 
         (setq svg-tag-tags
-              '(("DONE" . ((lambda (tag) (svg-tag-make "DONE"))))))
+              '((":DONE:" . ((lambda (tag) (svg-tag-make tag))))))
+
+        (setq svg-tag-tags
+              '((":NEXT:" . ((lambda (tag) (svg-tag-make tag))))))
+
 
           (straight-use-package
            '(notebook-mode :type git :host github :repo "rougier/notebook-mode"))
@@ -386,15 +390,98 @@
       nil t)
 
 (use-package python-mode
-:ensure t
-  :custom
-(python-shell-interpreter "python3")
-:hook (python-mode . lsp-deferred))
+  :ensure t
+    :custom
+  (python-shell-interpreter "python3")
+  :hook (python-mode . eglot-ensure))
+
+  (use-package auto-virtualenv
+:ensure t)
+  (require 'auto-virtualenv)
+(add-hook 'python-mode-hook 'auto-virtualenv-set-virtualenv)
 
 (use-package org-roam
   :ensure t
   )
-
 (require 'org-roam)
 (setq org-roam-directory (file-truename "~/org"))
 (org-roam-db-autosync-mode)
+
+(use-package evil-org-agenda
+          :ensure t
+          )
+          (use-package evil-org
+            :ensure t
+            :after org
+            :hook (org-mode . (lambda () evil-org-mode))
+            :config
+            (require 'evil-org-agenda)
+            (evil-org-agenda-set-keys))
+
+    (defun dw/org-mode-setup ()
+      (org-indent-mode)
+      (variable-pitch-mode 1)
+      (auto-fill-mode 0)
+      (visual-line-mode 1)
+      (setq evil-auto-indent nil))
+
+      (use-package org
+        :hook (org-mode . dw/org-mode-setup)
+        :config
+        (setq org-ellipsis " ▾"
+              org-hide-emphasis-markers t))
+
+      (add-hook 'org-mode-hook 'notebook-mode)
+
+      ;; Run/highlight code using babel in org-mode
+      (org-babel-do-load-languages
+       'org-babel-load-languages
+       '(
+         (python . t)
+         (shell . t)
+         ;; Include other languages here...
+         ))
+      ;; Syntax highlight in #+BEGIN_SRC blocks
+      (setq org-src-fontify-natively t)
+      ;; Don't prompt before running code in org
+      (setq org-confirm-babel-evaluate nil)
+      ;; Fix an incompatibility between the ob-async and ob-ipython packages
+      ;;(setq ob-async-no-async-languages-alist '("ipython"))
+
+      (require 'org-agenda)
+
+      (setq org-agenda-files (quote ("~/org")))
+      (setq org-default-notes-file "~/org/refile.org")
+      (setq org-agenda-tags-column org-tags-column)
+      (setq org-agenda-sticky nil)
+      (setq org-agenda-inhibit-startup nil)
+      (setq org-agenda-dim-blocked-tasks nil)
+
+
+
+        (setq org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
+        (setq org-startup-folded t)
+      (org-columns)
+
+
+  ;; Set the times to display in the time grid
+  (setq org-agenda-time-grid
+        (quote
+         ((daily today remove-match)
+          (800 1200 1600 2000)
+          "......" "----------------")))
+
+(require 'org-tempo)
+
+;; Define the custum capture templates
+(setq org-capture-templates
+       '(("t" "todo" entry (file org-default-notes-file)
+	  "* :TODO: %?\n%u\n%a\n" :clock-in t :clock-resume t)
+	 ("m" "Meeting" entry (file org-default-notes-file)
+	  "* MEETING with %? :MEETING:\n%t" :clock-in t :clock-resume t)
+	 ("d" "Diary" entry (file+datetree "~/org/diary.org")
+	  "* %?\n%U\n" :clock-in t :clock-resume t)
+	 ("i" "Idea" entry (file org-default-notes-file)
+	  "* %? :IDEA: \n%t" :clock-in t :clock-resume t)
+	 ("n" "Next Task" entry (file+headline org-default-notes-file "Tasks")
+	  "** :NEXT: %? \nDEADLINE: %t") ))
