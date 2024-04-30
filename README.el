@@ -457,8 +457,6 @@
       (setq org-agenda-inhibit-startup nil)
       (setq org-agenda-dim-blocked-tasks nil)
 
-
-
         (setq org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
         (setq org-startup-folded t)
       (org-columns)
@@ -470,18 +468,18 @@
          ((daily today remove-match)
           (800 1200 1600 2000)
           "......" "----------------")))
-
+(setq org-refile-targets (quote ((nil :maxlevel . 9)
+                                 (org-agenda-files :maxlevel . 9))))
 (require 'org-tempo)
+
+  (setq org-todo-keywords
+'((sequence "TODO" "WAITING" "VERIFY" | "DONE" "CANCLED")))
 
 ;; Define the custum capture templates
 (setq org-capture-templates
        '(("t" "todo" entry (file org-default-notes-file)
-	  "* :TODO: %?\n%u\n%a\n" :clock-in t :clock-resume t)
-	 ("m" "Meeting" entry (file org-default-notes-file)
-	  "* MEETING with %? :MEETING:\n%t" :clock-in t :clock-resume t)
-	 ("d" "Diary" entry (file+datetree "~/org/diary.org")
-	  "* %?\n%U\n" :clock-in t :clock-resume t)
-	 ("i" "Idea" entry (file org-default-notes-file)
-	  "* %? :IDEA: \n%t" :clock-in t :clock-resume t)
-	 ("n" "Next Task" entry (file+headline org-default-notes-file "Tasks")
-	  "** :NEXT: %? \nDEADLINE: %t") ))
+      "* TODO %?\n%u\n%a\n" :clock-in t :clock-resume t)
+     ("m" "Meeting" entry (file org-default-notes-file)
+      "* MEETING with %? :MEETING:\n%t" :clock-in t :clock-resume t)
+     ("i" "Idea" entry (file org-default-notes-file)
+      "* %? :IDEA: \n%t" :clock-in t :clock-resume t)))
