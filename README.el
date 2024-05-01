@@ -184,7 +184,6 @@
 
 
         (use-package tree-sitter
-
     :straight t
     )
         (use-package tree-sitter-langs
@@ -198,60 +197,58 @@
         (setq backup-directory-alist            '((".*" . "~/.Trash")))
 
 (straight-use-package
-            '(nano :type git :host github :repo "rougier/nano-emacs"))
-          (straight-use-package
-            '(org-margin :type git :host github :repo "rougier/org-margin"))
-          (require 'org-margin)
-        ;; TODO Add hook to enable org-margin
-          (straight-use-package 'mini-frame)
-        (require 'mini-frame)
-          (require 'nano)
-  (require 'nano-faces)
-
-          (straight-use-package
-           '(svg-tag-mode :type git :host github :repo "rougier/svg-tag-mode"))
-          (require 'svg-tag-mode)
-        (svg-tag-mode 1)
-
-          (setq svg-tag-tags
-                '((":TODO:" . ((lambda (tag) (svg-tag-make tag))))))
-
-        (setq svg-tag-tags
-              '((":DONE:" . ((lambda (tag) (svg-tag-make tag))))))
-
-        (setq svg-tag-tags
-              '((":NEXT:" . ((lambda (tag) (svg-tag-make tag))))))
-
-
-          (straight-use-package
-           '(notebook-mode :type git :host github :repo "rougier/notebook-mode"))
-          (require 'notebook)
-  
-(add-hook 'org-mode-hook 'notebook-mode)
+          '(nano :type git :host github :repo "rougier/nano-emacs"))
+        (straight-use-package
+          '(org-margin :type git :host github :repo "rougier/org-margin"))
+        (require 'org-margin)
+        (straight-use-package 'mini-frame)
+      (require 'mini-frame)
+        (require 'nano)
+(require 'nano-faces)
 
         (straight-use-package
-         '(nano-vertico :type git :host github :repo "rougier/nano-vertico"))
-        (require 'nano-vertico)
-        (nano-vertico-mode 1)
+         '(svg-tag-mode :type git :host github :repo "rougier/svg-tag-mode"))
+        (require 'svg-tag-mode)
+      (svg-tag-mode 1)
 
-      ;;(straight-use-package
-       ;;  '(svg-lib :type git :host github :repo "rougier/svg-lib"))
-        ;;(require 'svg-lib)
+        (setq svg-tag-tags
+              '(("TODO" . ((lambda (tag) (svg-tag-make tag))))))
+
+      (setq svg-tag-tags
+            '(("DONE" . ((lambda (tag) (svg-tag-make tag))))))
+
+      (setq svg-tag-tags
+            '(("CANCLED" . ((lambda (tag) (svg-tag-make tag))))))
 
 
-    (straight-use-package
-     '(pdf-drop-mode :type git :host github :repo "rougier/pdf-drop-mode"))
-    (straight-use-package
-     '(org-bib-mode :type git :host github :repo "rougier/org-bib-mode"))
+        (straight-use-package
+         '(notebook-mode :type git :host github :repo "rougier/notebook-mode"))
+        (require 'notebook)
 
-    (straight-use-package
-     '(nano-minibuffer :type git :host github :repo "rougier/nano-minibuffer"))
 
-    (require 'nano-minibuffer)
+      (straight-use-package
+       '(nano-vertico :type git :host github :repo "rougier/nano-vertico"))
+      (require 'nano-vertico)
+      (nano-vertico-mode 1)
 
-  (straight-use-package '(nano-sidebar :type git :host github
-                                       :repo "rougier/nano-sidebar"))
-  (require 'nano-sidebar)
+    ;;(straight-use-package
+     ;;  '(svg-lib :type git :host github :repo "rougier/svg-lib"))
+      ;;(require 'svg-lib)
+
+
+  (straight-use-package
+   '(pdf-drop-mode :type git :host github :repo "rougier/pdf-drop-mode"))
+  (straight-use-package
+   '(org-bib-mode :type git :host github :repo "rougier/org-bib-mode"))
+
+  (straight-use-package
+   '(nano-minibuffer :type git :host github :repo "rougier/nano-minibuffer"))
+
+  (require 'nano-minibuffer)
+
+(straight-use-package '(nano-sidebar :type git :host github
+                                     :repo "rougier/nano-sidebar"))
+(require 'nano-sidebar)
 
 (use-package doom-themes
   :ensure t
@@ -411,19 +408,16 @@
 (setq org-roam-directory (file-truename "~/org"))
 (org-roam-db-autosync-mode)
 
-(use-package evil-org-agenda
-          :ensure t
-          )
-          (use-package evil-org
+(use-package evil-org
             :ensure t
             :after org
             :hook (org-mode . (lambda () evil-org-mode))
             :config
-            (require 'evil-org-agenda)
-            (evil-org-agenda-set-keys))
+            )
 
     (defun dw/org-mode-setup ()
-      (org-indent-mode)
+      ;;(notebook-mode)
+      ;;(org-margin-mode)
       (variable-pitch-mode 1)
       (auto-fill-mode 0)
       (visual-line-mode 1)

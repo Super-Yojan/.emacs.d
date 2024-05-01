@@ -20,6 +20,7 @@ each part will have its own requirements.
 
 *** Package manager
 #+BEGIN_SRC emacs-lisp
+
   (defvar bootstrap-version)
   (let ((bootstrap-file
          (expand-file-name
@@ -221,7 +222,6 @@ Some default to keep me sane
 
 
           (use-package tree-sitter
-
       :straight t
       )
           (use-package tree-sitter-langs
@@ -246,7 +246,6 @@ I like to keep my ui minimal, and nano emacs is perfect for this.
           (straight-use-package
             '(org-margin :type git :host github :repo "rougier/org-margin"))
           (require 'org-margin)
-        ;; TODO Add hook to enable org-margin
           (straight-use-package 'mini-frame)
         (require 'mini-frame)
           (require 'nano)
@@ -258,20 +257,19 @@ I like to keep my ui minimal, and nano emacs is perfect for this.
         (svg-tag-mode 1)
 
           (setq svg-tag-tags
-                '((":TODO:" . ((lambda (tag) (svg-tag-make tag))))))
+                '(("TODO" . ((lambda (tag) (svg-tag-make tag))))))
 
         (setq svg-tag-tags
-              '((":DONE:" . ((lambda (tag) (svg-tag-make tag))))))
+              '(("DONE" . ((lambda (tag) (svg-tag-make tag))))))
 
         (setq svg-tag-tags
-              '((":NEXT:" . ((lambda (tag) (svg-tag-make tag))))))
+              '(("CANCLED" . ((lambda (tag) (svg-tag-make tag))))))
 
 
           (straight-use-package
            '(notebook-mode :type git :host github :repo "rougier/notebook-mode"))
           (require 'notebook)
   
-(add-hook 'org-mode-hook 'notebook-mode)
 
         (straight-use-package
          '(nano-vertico :type git :host github :repo "rougier/nano-vertico"))
@@ -531,11 +529,11 @@ The easiest
               :after org
               :hook (org-mode . (lambda () evil-org-mode))
               :config
-              (require 'evil-org-agenda)
-              (evil-org-agenda-set-keys))
+              )
 
       (defun dw/org-mode-setup ()
-        (org-indent-mode)
+        ;;(notebook-mode)
+        ;;(org-margin-mode)
         (variable-pitch-mode 1)
         (auto-fill-mode 0)
         (visual-line-mode 1)
