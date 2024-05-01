@@ -253,6 +253,10 @@
                                        :repo "rougier/nano-sidebar"))
   (require 'nano-sidebar)
 
+(use-package doom-themes
+  :ensure t
+ )
+
 (defun ibuffer-advice (format)
   (with-current-buffer "*Ibuffer*"
     (save-excursion
@@ -453,7 +457,7 @@
       (setq org-agenda-files (quote ("~/org")))
       (setq org-default-notes-file "~/org/refile.org")
       (setq org-agenda-tags-column org-tags-column)
-      (setq org-agenda-sticky nil)
+      (setq org-agenda-sticky t)
       (setq org-agenda-inhibit-startup nil)
       (setq org-agenda-dim-blocked-tasks nil)
 
@@ -474,6 +478,7 @@
 
   (setq org-todo-keywords
 '((sequence "TODO" "WAITING" "VERIFY" | "DONE" "CANCLED")))
+
 
 ;; Define the custum capture templates
 (setq org-capture-templates

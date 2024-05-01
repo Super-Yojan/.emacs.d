@@ -299,6 +299,17 @@ I like to keep my ui minimal, and nano emacs is perfect for this.
 
 #+END_SRC
 
+
+Adding doom themes
+
+#+begin_src emacs-lisp
+(use-package doom-themes
+  :ensure t
+ )
+
+#+end_src
+
+
 Config for side buffer, I don't think I will use it tho
 #+BEGIN_SRC emacs-lisp
 (defun ibuffer-advice (format)
@@ -515,10 +526,7 @@ The easiest
 **** Organizing Life with Org
 
 #+BEGIN_SRC emacs-lisp
-            (use-package evil-org-agenda
-            :ensure t
-            )
-            (use-package evil-org
+           (use-package evil-org
               :ensure t
               :after org
               :hook (org-mode . (lambda () evil-org-mode))
@@ -569,7 +577,7 @@ The easiest
           (setq org-startup-folded t)
         (org-columns)
 
-
+ 
     ;; Set the times to display in the time grid
     (setq org-agenda-time-grid
           (quote
