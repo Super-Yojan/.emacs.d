@@ -1,37 +1,41 @@
 (defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name
-        "straight/repos/straight.el/bootstrap.el"
-        (or (bound-and-true-p straight-base-dir)
-            user-emacs-directory)))
-      (bootstrap-version 7))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
+ (let ((bootstrap-file
+        (expand-file-name
+         "straight/repos/straight.el/bootstrap.el"
+         (or (bound-and-true-p straight-base-dir)
+             user-emacs-directory)))
+       (bootstrap-version 7))
+   (unless (file-exists-p bootstrap-file)
+     (with-current-buffer
+         (url-retrieve-synchronously
+          "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+          'silent 'inhibit-cookies)
+       (goto-char (point-max))
+       (eval-print-last-sexp)))
+   (load bootstrap-file nil 'nomessage))
 
-;;(straight-use-package 'org)
-;;(setq package-enable-at-startup nil)
-;; Initialize package sources
-(require 'package)
+;; (straight-use-package 'org)
+ ;;(setq package-enable-at-startup nil)
+ ;; Initialize package sources
+ (require 'package)
 
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("org" . "https://orgmode.org/elpa/")
-                         ("elpa" . "https://elpa.gnu.org/packages/")))
+ (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                          ("org" . "https://orgmode.org/elpa/")
+                          ("elpa" . "https://elpa.gnu.org/packages/")))
 
-;;(package-initialize)
-(unless package-archive-contents
- (package-refresh-contents))
+ ;;(package-initialize)
+ (unless package-archive-contents
+  (package-refresh-contents))
 
-;; Initialize use-package on non-Linux platforms
-(unless (package-installed-p 'use-package)
-   (package-install 'use-package))
+ ;; Initialize use-package on non-Linux platforms
+ (unless (package-installed-p 'use-package)
+    (package-install 'use-package))
 
-(require 'use-package)
+ (require 'use-package)
+
+(setenv "PATH" "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/usr/local/go/bin:/usr/share/")
+(setq exec-path (append '("/usr/local/go/bin" "PATH2")
+                        exec-path))
 
 (use-package projectile
     :ensure t
@@ -53,68 +57,76 @@
   (persp-mode))
 
 (use-package general
-      :ensure t)
-    (use-package evil
-      :ensure t
-      :init
-      (setq evil-want-keybinding nil)
-      (setq evil-want-integration t)
-      :config
-      (evil-mode 1))
+        :ensure t)
+      (use-package evil
+        :ensure t
+        :init
+        (setq evil-want-keybinding nil)
+        (setq evil-want-integration t)
+        :config
+        (evil-mode 1))
 
-    (use-package evil-collection
-      :after evil
-      :ensure t
-      :config
-      (evil-collection-init))
+      (use-package evil-collection
+        :after evil
+        :ensure t
+        :config
+        (evil-collection-init))
 
-    (require 'general)
+(use-package evil-org
+  :ensure t
+  :after org
+  :hook (org-mode . (lambda () evil-org-mode))
+  :config
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
 
-    (general-create-definer my-leader-def
-      :prefix "SPC")
-  ;; ** Global Keybindings
-  (my-leader-def
-    :keymaps 'normal
-    ;; bind "SPC a"
-    "a" 'org-agenda
-  ;;  "b" 'counsel-bookmark
-    "c" 'org-capture
-    "SPC" 'projectile-find-file
-    "fp" 'projectile-switch-project
-    "ff" 'find-file
-    "wl" 'evil-window-right
-    "wh" 'evil-window-left
-    "wk" 'evil-window-up
-    "wj" 'evil-window-down
-    "wv" 'evil-window-vnew
-    "ws" 'evil-window-new
-    "wq" 'evil-quit
-    "eb" 'eval-buffer
-    "op" 'treemacs
-    "ot" 'vterm
-    "ns" 'elscreen-create
-    "]" 'evil-next-buffer
-    "[" 'evil-prev-buffer
-    "ti" 'org-clock-in
-    "to" 'org-clock-out
-    "/" 'comment-line
-    "x" 'helm-M-x
-    )
+      (require 'general)
 
-;;  (define-key evil-normal-state-map (kbd "RET") 'org-toggle-todo-and-fold)
-;;(define-key evil-normal-state-map (kbd "S") 'comment-line)
-(defun drmoscovium/dont-arrow ()
-  (interactive)
-  (message "Arrow keys are bad, you know?"))
+      (general-create-definer my-leader-def
+        :prefix "SPC")
+    ;; ** Global Keybindings
+    (my-leader-def
+      :keymaps 'normal
+      ;; bind "SPC a"
+      "a" 'org-agenda
+    ;;  "b" 'counsel-bookmark
+      "c" 'org-capture
+      "SPC" 'projectile-find-file
+      "fp" 'projectile-switch-project
+      "ff" 'find-file
+      "wl" 'evil-window-right
+      "wh" 'evil-window-left
+      "wk" 'evil-window-up
+      "wj" 'evil-window-down
+      "wv" 'evil-window-vnew
+      "ws" 'evil-window-new
+      "wq" 'evil-quit
+      "eb" 'eval-buffer
+      "op" 'treemacs
+      "ot" 'vterm
+      "ns" 'elscreen-create
+      "]" 'evil-next-buffer
+      "[" 'evil-prev-buffer
+      "ti" 'org-clock-in
+      "to" 'org-clock-out
+      "/" 'comment-line
+      "x" 'helm-M-x
+      )
 
-(define-key evil-normal-state-map (kbd "<left>") 'drmoscovium/dont-arrow)
-(define-key evil-normal-state-map (kbd "<right>") 'drmoscovium/dont-arrow)
-(define-key evil-normal-state-map (kbd "<down>") 'drmoscovium/dont-arrow)
-(define-key evil-normal-state-map (kbd "<up>") 'drmoscovium/dont-arrow)
-(evil-global-set-key 'motion (kbd "<left>") 'drmoscovium/dont-arrow)
-(evil-global-set-key 'motion (kbd "<right>") 'drmoscovium/dont-arrow)
-(evil-global-set-key 'motion (kbd "<down>") 'drmoscovium/dont-arrow)
-(evil-global-set-key 'motion (kbd "<up>") 'drmoscovium/dont-arrow)
+  ;;  (define-key evil-normal-state-map (kbd "RET") 'org-toggle-todo-and-fold)
+  ;;(define-key evil-normal-state-map (kbd "S") 'comment-line)
+  (defun drmoscovium/dont-arrow ()
+    (interactive)
+    (message "Arrow keys are bad, you know?"))
+
+  (define-key evil-normal-state-map (kbd "<left>") 'drmoscovium/dont-arrow)
+  (define-key evil-normal-state-map (kbd "<right>") 'drmoscovium/dont-arrow)
+  (define-key evil-normal-state-map (kbd "<down>") 'drmoscovium/dont-arrow)
+  (define-key evil-normal-state-map (kbd "<up>") 'drmoscovium/dont-arrow)
+  (evil-global-set-key 'motion (kbd "<left>") 'drmoscovium/dont-arrow)
+  (evil-global-set-key 'motion (kbd "<right>") 'drmoscovium/dont-arrow)
+  (evil-global-set-key 'motion (kbd "<down>") 'drmoscovium/dont-arrow)
+  (evil-global-set-key 'motion (kbd "<up>") 'drmoscovium/dont-arrow)
 
 (setq inhibit-startup-screen t)
         (setq inhibit-startup-echo-area-message t)
@@ -196,59 +208,35 @@
 
         (setq backup-directory-alist            '((".*" . "~/.Trash")))
 
-(straight-use-package
-          '(nano :type git :host github :repo "rougier/nano-emacs"))
-        (straight-use-package
-          '(org-margin :type git :host github :repo "rougier/org-margin"))
-        (require 'org-margin)
-        (straight-use-package 'mini-frame)
-      (require 'mini-frame)
-        (require 'nano)
-(require 'nano-faces)
+;; (straight-use-package
+        ;; '(nano :type git :host github :repo "rougier/nano-emacs"))
+      (straight-use-package
+        '(org-margin :type git :host github :repo "rougier/org-margin"))
+      (require 'org-margin)
 
-        (straight-use-package
-         '(svg-tag-mode :type git :host github :repo "rougier/svg-tag-mode"))
-        (require 'svg-tag-mode)
-      (svg-tag-mode 1)
-
-        (setq svg-tag-tags
-              '(("TODO" . ((lambda (tag) (svg-tag-make tag))))))
+      (straight-use-package
+       '(svg-tag-mode :type git :host github :repo "rougier/svg-tag-mode"))
+      (require 'svg-tag-mode)
+    (svg-tag-mode 1)
 
       (setq svg-tag-tags
-            '(("DONE" . ((lambda (tag) (svg-tag-make tag))))))
+            '(("TODO" . ((lambda (tag) (svg-tag-make tag))))))
 
-      (setq svg-tag-tags
-            '(("CANCLED" . ((lambda (tag) (svg-tag-make tag))))))
+    (setq svg-tag-tags
+          '(("DONE" . ((lambda (tag) (svg-tag-make tag))))))
 
-
-        (straight-use-package
-         '(notebook-mode :type git :host github :repo "rougier/notebook-mode"))
-        (require 'notebook)
+    (setq svg-tag-tags
+          '(("CANCLED" . ((lambda (tag) (svg-tag-make tag))))))
 
 
       (straight-use-package
-       '(nano-vertico :type git :host github :repo "rougier/nano-vertico"))
-      (require 'nano-vertico)
-      (nano-vertico-mode 1)
+       '(notebook-mode :type git :host github :repo "rougier/notebook-mode"))
+      (require 'notebook)
 
-    ;;(straight-use-package
-     ;;  '(svg-lib :type git :host github :repo "rougier/svg-lib"))
-      ;;(require 'svg-lib)
-
-
-  (straight-use-package
-   '(pdf-drop-mode :type git :host github :repo "rougier/pdf-drop-mode"))
-  (straight-use-package
-   '(org-bib-mode :type git :host github :repo "rougier/org-bib-mode"))
-
-  (straight-use-package
-   '(nano-minibuffer :type git :host github :repo "rougier/nano-minibuffer"))
-
-  (require 'nano-minibuffer)
-
-(straight-use-package '(nano-sidebar :type git :host github
-                                     :repo "rougier/nano-sidebar"))
-(require 'nano-sidebar)
+(straight-use-package
+ '(pdf-drop-mode :type git :host github :repo "rougier/pdf-drop-mode"))
+(straight-use-package
+ '(org-bib-mode :type git :host github :repo "rougier/org-bib-mode"))
 
 (use-package doom-themes
   :ensure t
@@ -401,84 +389,20 @@
   (require 'auto-virtualenv)
 (add-hook 'python-mode-hook 'auto-virtualenv-set-virtualenv)
 
-(use-package org-roam
-  :ensure t
-  )
-(require 'org-roam)
-(setq org-roam-directory (file-truename "~/org"))
-(org-roam-db-autosync-mode)
+(setq org-agenda-files (quote ("~/org/todo.org"
+                              )))
 
-(use-package evil-org
-            :ensure t
-            :after org
-            :hook (org-mode . (lambda () evil-org-mode))
-            :config
-            )
+    (add-hook 'org-mode-hook 'notebook-mode)
+(setq org-todo-keywords
+      (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+              (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
 
-    (defun dw/org-mode-setup ()
-      ;;(notebook-mode)
-      ;;(org-margin-mode)
-      (variable-pitch-mode 1)
-      (auto-fill-mode 0)
-      (visual-line-mode 1)
-      (setq evil-auto-indent nil))
-
-      (use-package org
-        :hook (org-mode . dw/org-mode-setup)
-        :config
-        (setq org-ellipsis " ▾"
-              org-hide-emphasis-markers t))
-
-      (add-hook 'org-mode-hook 'notebook-mode)
-
-      ;; Run/highlight code using babel in org-mode
-      (org-babel-do-load-languages
-       'org-babel-load-languages
-       '(
-         (python . t)
-         (shell . t)
-         ;; Include other languages here...
-         ))
-      ;; Syntax highlight in #+BEGIN_SRC blocks
-      (setq org-src-fontify-natively t)
-      ;; Don't prompt before running code in org
-      (setq org-confirm-babel-evaluate nil)
-      ;; Fix an incompatibility between the ob-async and ob-ipython packages
-      ;;(setq ob-async-no-async-languages-alist '("ipython"))
-
-      (require 'org-agenda)
-
-      (setq org-agenda-files (quote ("~/org")))
-      (setq org-default-notes-file "~/org/refile.org")
-      (setq org-agenda-tags-column org-tags-column)
-      (setq org-agenda-sticky t)
-      (setq org-agenda-inhibit-startup nil)
-      (setq org-agenda-dim-blocked-tasks nil)
-
-        (setq org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
-        (setq org-startup-folded t)
-      (org-columns)
-
-
-  ;; Set the times to display in the time grid
-  (setq org-agenda-time-grid
-        (quote
-         ((daily today remove-match)
-          (800 1200 1600 2000)
-          "......" "----------------")))
-(setq org-refile-targets (quote ((nil :maxlevel . 9)
-                                 (org-agenda-files :maxlevel . 9))))
-(require 'org-tempo)
-
-  (setq org-todo-keywords
-'((sequence "TODO" "WAITING" "VERIFY" | "DONE" "CANCLED")))
-
-
-;; Define the custum capture templates
-(setq org-capture-templates
-       '(("t" "todo" entry (file org-default-notes-file)
-      "* TODO %?\n%u\n%a\n" :clock-in t :clock-resume t)
-     ("m" "Meeting" entry (file org-default-notes-file)
-      "* MEETING with %? :MEETING:\n%t" :clock-in t :clock-resume t)
-     ("i" "Idea" entry (file org-default-notes-file)
-      "* %? :IDEA: \n%t" :clock-in t :clock-resume t)))
+(setq org-todo-keyword-faces
+      (quote (("TODO" :foreground "red" :weight bold)
+              ("NEXT" :foreground "blue" :weight bold)
+              ("DONE" :foreground "forest green" :weight bold)
+              ("WAITING" :foreground "orange" :weight bold)
+              ("HOLD" :foreground "magenta" :weight bold)
+              ("CANCELLED" :foreground "forest green" :weight bold)
+              ("MEETING" :foreground "forest green" :weight bold)
+                ("PHONE" :foreground "forest green" :weight bold))))
