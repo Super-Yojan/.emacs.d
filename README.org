@@ -21,40 +21,40 @@ each part will have its own requirements.
 *** Package manager
 #+BEGIN_SRC emacs-lisp
 
-  (defvar bootstrap-version)
-  (let ((bootstrap-file
-         (expand-file-name
-          "straight/repos/straight.el/bootstrap.el"
-          (or (bound-and-true-p straight-base-dir)
-              user-emacs-directory)))
-        (bootstrap-version 7))
-    (unless (file-exists-p bootstrap-file)
-      (with-current-buffer
-          (url-retrieve-synchronously
-           "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-           'silent 'inhibit-cookies)
-        (goto-char (point-max))
-        (eval-print-last-sexp)))
-    (load bootstrap-file nil 'nomessage))
+   (defvar bootstrap-version)
+   (let ((bootstrap-file
+          (expand-file-name
+           "straight/repos/straight.el/bootstrap.el"
+           (or (bound-and-true-p straight-base-dir)
+               user-emacs-directory)))
+         (bootstrap-version 7))
+     (unless (file-exists-p bootstrap-file)
+       (with-current-buffer
+           (url-retrieve-synchronously
+            "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+            'silent 'inhibit-cookies)
+         (goto-char (point-max))
+         (eval-print-last-sexp)))
+     (load bootstrap-file nil 'nomessage))
 
- ;; (straight-use-package 'org)
-  ;;(setq package-enable-at-startup nil)
-  ;; Initialize package sources
-  (require 'package)
+  (straight-use-package 'org)
+   ;;(setq package-enable-at-startup nil)
+   ;; Initialize package sources
+   (require 'package)
 
-  (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                           ("org" . "https://orgmode.org/elpa/")
-                           ("elpa" . "https://elpa.gnu.org/packages/")))
+   (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                            ("org" . "https://orgmode.org/elpa/")
+                            ("elpa" . "https://elpa.gnu.org/packages/")))
 
-  ;;(package-initialize)
-  (unless package-archive-contents
-   (package-refresh-contents))
+   ;;(package-initialize)
+   (unless package-archive-contents
+    (package-refresh-contents))
 
-  ;; Initialize use-package on non-Linux platforms
-  (unless (package-installed-p 'use-package)
-     (package-install 'use-package))
+   ;; Initialize use-package on non-Linux platforms
+   (unless (package-installed-p 'use-package)
+      (package-install 'use-package))
 
-  (require 'use-package)
+   (require 'use-package)
 
 #+END_SRC
 
@@ -75,7 +75,7 @@ each part will have its own requirements.
                 ("s-p" . projectile-command-map)
                 ("C-c p" . projectile-command-map)))
 
-  (setq projectile-project-search-path '("~/Blimp/" "~/Blimp-Senior-Design/" "~/RDC/" ("~/github" . 1)))
+  (setq projectile-project-search-path '("~/Blimp/" "~/Blimp-Senior-Design/" "~/RDC/" ("~/git" . 1)))
   
 (use-package perspective
   :straight t
@@ -175,6 +175,7 @@ Some default to keep me sane
           (setq initial-scratch-message nil)
           (setq initial-major-mode 'org-mode)
           (setq line-number-mode t)
+          (setq display-line-number-mode t)
           (setq-default indent-tabs-mode nil)
           (setq pop-up-windows nil)
           (tool-bar-mode 0)
@@ -195,6 +196,10 @@ Some default to keep me sane
           (use-package all-the-icons-dired
       :straight t
             :hook (dired-mode . all-the-icons-dired-mode))
+
+
+
+  (set-frame-font "JetBrainsMono Nerd Font Mono 12" nil t)
 
 
           (use-package ido-vertical-mode
@@ -293,101 +298,120 @@ I like to keep my ui minimal, and nano emacs is perfect for this.
 Adding doom themes
 
 #+begin_src emacs-lisp
-(use-package doom-themes
-  :ensure t
- )
 
-#+end_src
+  (use-package doom-themes
+    :ensure t
+    :config
+    ;; Global settings (defaults)
+    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+          doom-themes-enable-italic t) ; if nil, italics is universally disabled
+    (load-theme 'doom-one t)
 
+    ;; Enable flashing mode-line on errors
+    (doom-themes-visual-bell-config)
+    ;; Enable custom neotree theme (all-the-icons must be installed!)
+    (doom-themes-neotree-config)
+    ;; or for treemacs users
+    (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+    (doom-themes-treemacs-config)
+    ;; Corrects (and improves) org-mode's native fontification.
+    (doom-themes-org-config))
+ #+end_src
 
-Config for side buffer, I don't think I will use it tho
 #+BEGIN_SRC emacs-lisp
-(defun ibuffer-advice (format)
-  (with-current-buffer "*Ibuffer*"
-    (save-excursion
-    (let ((inhibit-read-only t))
+(use-package doom-modeline
+  :ensure t
+  :hook (after-init . doom-modeline-mode))
+#+END_SRC
 
-      ;; Remove header and insert ours
-      (goto-char (point-min))
-      (search-forward "-\n" nil t)
-      (delete-region 1 (point))
-      (goto-char (point-min))
-      (insert (concat
-               (propertize "\n" 'face '(:height 1.2))
-               (propertize " "  'display `(raise +0.25))
-               (propertize "  Buffers list (ibuffer)"
-                           'face 'nano-faded)
-               (propertize " "  'display `(raise -0.35))
-               "\n"))
-      (insert "")
+  Config for side buffer, I don't think I will use it tho
+#+BEGIN_SRC emacs-lisp
+  (defun ibuffer-advice (format)
+    (with-current-buffer "*Ibuffer*"
+      (save-excursion
+      (let ((inhibit-read-only t))
 
-      ;; Transform titles
-      (goto-char (point-min))
-      (while (re-search-forward "\\[ \\(.*\\) \\]" nil t)
-        (let* ((title (match-string 0))
-               (property (get-text-property 0 'ibuffer-filter-group-name title)))
-          (replace-match "\n")
-          (insert (concat
-                   (propertize
-                    (format "   %s " (substring title 2 -2))
-                    'ibuffer-filter-group-name property)
-                   (propertize
-                    (make-string (- 30 (length title)) ?—)
-                    'face 'nano-faded)
-                   "\n"))))))))
+        ;; Remove header and insert ours
+        (goto-char (point-min))
+        (search-forward "-\n" nil t)
+        (delete-region 1 (point))
+        (goto-char (point-min))
+        (insert (concat
+                 (propertize "\n" 'face '(:height 1.2))
+                 (propertize " "  'display `(raise +0.25))
+                 (propertize "  Buffers list (ibuffer)"
+                             'face 'nano-faded)
+                 (propertize " "  'display `(raise -0.35))
+                 "\n"))
+        (insert "")
 
-
-(setq ibuffer-saved-filter-groups
-       '(("home"
- 	      ("Configuration" (or (filename . ".emacs.d")
- 			                   (filename . "emacs-config")))
- 	      ("Org" (or (mode . org-mode)
- 		             (filename . "OrgMode")))
-          ("Code" (or  (derived-mode . prog-mode)
-                       (mode . ess-mode)
-                       (mode . compilation-mode)))
-          ("Text" (and (derived-mode . text-mode)
-                       (not  (starred-name))))
-          ("TeX"  (or (derived-mode . tex-mode)
-                      (mode . latex-mode)
-                      (mode . context-mode)
-                      (mode . ams-tex-mode)
-                      (mode . bibtex-mode)))
- 	      ("Help" (or (name . "\*Help\*")
- 		              (name . "\*Apropos\*")
- 		              (name . "\*info\*"))))))
-
-(setq ibuffer-show-empty-filter-groups nil)
-(setq ibuffer-display-summary nil)
-(setq ibuffer-use-header-line nil)
-(setq ibuffer-eliding-string (propertize "…" 'face 'nano-salient))
-(setq ibuffer-fontification-alist '((0 t nano-salient)))
-(setq ibuffer-formats
-      '(("  "  mark " "(name 24 24 :left :elide) "  " modified)
-        (mark " " (name 16 -1) " " filename)))
-
-(defun ibuffer-setup ()
-  (ibuffer-switch-to-saved-filter-groups "home")
-  (ibuffer-auto-mode 1))
-
-(defun nano-sidebar-init-ibuffer (frame sidebar)
-  "Default sidebar initialization"
-
-  (select-frame frame)
-  (let ((buffer (current-buffer)))
-    (ibuffer)
-    (switch-to-buffer buffer))
-  (select-frame sidebar)
-  (switch-to-buffer "*Ibuffer*")
-  (set-window-dedicated-p (get-buffer-window "*Ibuffer*") t)
-  (hl-line-mode)
-  (setq header-line-format nil)
-  (setq mode-line-format nil))
+        ;; Transform titles
+        (goto-char (point-min))
+        (while (re-search-forward "\\[ \\(.*\\) \\]" nil t)
+          (let* ((title (match-string 0))
+                 (property (get-text-property 0 'ibuffer-filter-group-name title)))
+            (replace-match "\n")
+            (insert (concat
+                     (propertize
+                      (format "   %s " (substring title 2 -2))
+                      'ibuffer-filter-group-name property)
+                     (propertize
+                      (make-string (- 30 (length title)) ?—)
+                      'face 'nano-faded)
+                     "\n"))))))))
 
 
-(setq nano-sidebar-default-init 'nano-sidebar-init-ibuffer)
-(advice-add 'ibuffer-update-title-and-summary :after #'ibuffer-advice)
-(add-hook 'ibuffer-mode-hook #'ibuffer-setup)
+  (setq ibuffer-saved-filter-groups
+         '(("home"
+                ("Configuration" (or (filename . ".emacs.d")
+                                             (filename . "emacs-config")))
+                ("Org" (or (mode . org-mode)
+                               (filename . "OrgMode")))
+            ("Code" (or  (derived-mode . prog-mode)
+                         (mode . ess-mode)
+                         (mode . compilation-mode)))
+            ("Text" (and (derived-mode . text-mode)
+                         (not  (starred-name))))
+            ("TeX"  (or (derived-mode . tex-mode)
+                        (mode . latex-mode)
+                        (mode . context-mode)
+                        (mode . ams-tex-mode)
+                        (mode . bibtex-mode)))
+                ("Help" (or (name . "\*Help\*")
+                                (name . "\*Apropos\*")
+                                (name . "\*info\*"))))))
+
+  (setq ibuffer-show-empty-filter-groups nil)
+  (setq ibuffer-display-summary nil)
+  (setq ibuffer-use-header-line nil)
+  (setq ibuffer-eliding-string (propertize "…" 'face 'nano-salient))
+  (setq ibuffer-fontification-alist '((0 t nano-salient)))
+  (setq ibuffer-formats
+        '(("  "  mark " "(name 24 24 :left :elide) "  " modified)
+          (mark " " (name 16 -1) " " filename)))
+
+  (defun ibuffer-setup ()
+    (ibuffer-switch-to-saved-filter-groups "home")
+    (ibuffer-auto-mode 1))
+
+  (defun nano-sidebar-init-ibuffer (frame sidebar)
+    "Default sidebar initialization"
+
+    (select-frame frame)
+    (let ((buffer (current-buffer)))
+      (ibuffer)
+      (switch-to-buffer buffer))
+    (select-frame sidebar)
+    (switch-to-buffer "*Ibuffer*")
+    (set-window-dedicated-p (get-buffer-window "*Ibuffer*") t)
+    (hl-line-mode)
+    (setq header-line-format nil)
+    (setq mode-line-format nil))
+
+
+  (setq nano-sidebar-default-init 'nano-sidebar-init-ibuffer)
+  (advice-add 'ibuffer-update-title-and-summary :after #'ibuffer-advice)
+  (add-hook 'ibuffer-mode-hook #'ibuffer-setup)
 
 #+END_SRC
 
@@ -504,17 +528,17 @@ The easiest
 
 1. Be able to capture any idea that comes to my head, and look at it later.
 **** Org Roam
-#+BEGIN_SRC 
+#+BEGIN_SRC  emacs-lisp
   (use-package org-roam
-    :ensure t
-    )
+  :straight (:host github :repo "org-roam/org-roam"
+             :files (:defaults "extensions/*"))
+  )
   (require 'org-roam)
-  (setq org-roam-directory (file-truename "~/org"))
+  (setq org-roam-directory (file-truename "~/RoamNotes"))
   (org-roam-db-autosync-mode)
 #+END_SRC
 
 **** Organizing Life with Org
-
 #+BEGIN_SRC emacs-lisp
     (setq org-agenda-files (quote ("~/org/todo.org"
                                 )))
