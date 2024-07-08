@@ -1,5 +1,5 @@
 (setenv "PATH" "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/usr/local/go/bin:/usr/share/")
-(setq exec-path (append '("/usr/local/go/bin" "PATH2")
+(setq exec-path (append '("/usr/local/go/bin" "/usr/bin/jdt-language-server/bin")
                         exec-path))
 
 (use-package projectile
@@ -98,6 +98,7 @@
         (setq inhibit-startup-message t)
         (setq initial-scratch-message nil)
         (setq initial-major-mode 'org-mode)
+        (menu-bar-mode 0)
         (setq line-number-mode t)
         (setq display-line-number-mode t)
         (setq-default indent-tabs-mode nil)
@@ -405,7 +406,7 @@
 
 (set-frame-parameter (selected-frame) 'alpha '(97 . 100))
 (add-to-list 'default-frame-alist '(alpha . (90 . 90)))
-  (defvar my/variable-width-font "Iosevka Aile")
+  (defvar my/variable-width-font "JetBrainsMono Nerd Font Mono")
   (defvar my/fixed-width-font "JetBrainsMono Nerd Font Mono")
     ;; Org Mode Appearance ------------------------------------
 
