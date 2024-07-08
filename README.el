@@ -1,38 +1,3 @@
-(defvar bootstrap-version)
- (let ((bootstrap-file
-        (expand-file-name
-         "straight/repos/straight.el/bootstrap.el"
-         (or (bound-and-true-p straight-base-dir)
-             user-emacs-directory)))
-       (bootstrap-version 7))
-   (unless (file-exists-p bootstrap-file)
-     (with-current-buffer
-         (url-retrieve-synchronously
-          "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-          'silent 'inhibit-cookies)
-       (goto-char (point-max))
-       (eval-print-last-sexp)))
-   (load bootstrap-file nil 'nomessage))
-
-;; (straight-use-package 'org)
- ;;(setq package-enable-at-startup nil)
- ;; Initialize package sources
- (require 'package)
-
- (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                          ("org" . "https://orgmode.org/elpa/")
-                          ("elpa" . "https://elpa.gnu.org/packages/")))
-
- ;;(package-initialize)
- (unless package-archive-contents
-  (package-refresh-contents))
-
- ;; Initialize use-package on non-Linux platforms
- (unless (package-installed-p 'use-package)
-    (package-install 'use-package))
-
- (require 'use-package)
-
 (setenv "PATH" "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/usr/local/go/bin:/usr/share/")
 (setq exec-path (append '("/usr/local/go/bin" "PATH2")
                         exec-path))
@@ -45,7 +10,7 @@
                 ("s-p" . projectile-command-map)
                 ("C-c p" . projectile-command-map)))
 
-  (setq projectile-project-search-path '("~/Blimp/" "~/Blimp-Senior-Design/" "~/RDC/" ("~/github" . 1)))
+  (setq projectile-project-search-path '("~/Blimp/" "~/Blimp-Senior-Design/" "~/RDC/" ("~/git" . 1)))
   
 (use-package perspective
   :straight t
@@ -79,7 +44,7 @@
   :config
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
-
+  
       (require 'general)
 
       (general-create-definer my-leader-def
@@ -134,6 +99,7 @@
         (setq initial-scratch-message nil)
         (setq initial-major-mode 'org-mode)
         (setq line-number-mode t)
+        (setq display-line-number-mode t)
         (setq-default indent-tabs-mode nil)
         (setq pop-up-windows nil)
         (tool-bar-mode 0)
@@ -154,6 +120,10 @@
         (use-package all-the-icons-dired
     :straight t
           :hook (dired-mode . all-the-icons-dired-mode))
+
+
+
+(set-frame-font "JetBrainsMono Nerd Font Mono 12" nil t)
 
 
         (use-package ido-vertical-mode
@@ -240,7 +210,25 @@
 
 (use-package doom-themes
   :ensure t
- )
+  :config
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (load-theme 'doom-one t)
+
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  ;; Enable custom neotree theme (all-the-icons must be installed!)
+  (doom-themes-neotree-config)
+  ;; or for treemacs users
+  (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+  (doom-themes-treemacs-config)
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
+
+(use-package doom-modeline
+  :ensure t
+  :hook (after-init . doom-modeline-mode))
 
 (defun ibuffer-advice (format)
   (with-current-buffer "*Ibuffer*"
@@ -279,10 +267,10 @@
 
 (setq ibuffer-saved-filter-groups
        '(("home"
- 	      ("Configuration" (or (filename . ".emacs.d")
- 			                   (filename . "emacs-config")))
- 	      ("Org" (or (mode . org-mode)
- 		             (filename . "OrgMode")))
+              ("Configuration" (or (filename . ".emacs.d")
+                                           (filename . "emacs-config")))
+              ("Org" (or (mode . org-mode)
+                             (filename . "OrgMode")))
           ("Code" (or  (derived-mode . prog-mode)
                        (mode . ess-mode)
                        (mode . compilation-mode)))
@@ -293,9 +281,9 @@
                       (mode . context-mode)
                       (mode . ams-tex-mode)
                       (mode . bibtex-mode)))
- 	      ("Help" (or (name . "\*Help\*")
- 		              (name . "\*Apropos\*")
- 		              (name . "\*info\*"))))))
+              ("Help" (or (name . "\*Help\*")
+                              (name . "\*Apropos\*")
+                              (name . "\*info\*"))))))
 
 (setq ibuffer-show-empty-filter-groups nil)
 (setq ibuffer-display-summary nil)
@@ -389,6 +377,14 @@
   (require 'auto-virtualenv)
 (add-hook 'python-mode-hook 'auto-virtualenv-set-virtualenv)
 
+(use-package org-roam
+:straight (:host github :repo "org-roam/org-roam"
+           :files (:defaults "extensions/*"))
+)
+(require 'org-roam)
+(setq org-roam-directory (file-truename "~/RoamNotes"))
+(org-roam-db-autosync-mode)
+
 (setq org-agenda-files (quote ("~/org/todo.org"
                               )))
 
@@ -406,3 +402,107 @@
               ("CANCELLED" :foreground "forest green" :weight bold)
               ("MEETING" :foreground "forest green" :weight bold)
                 ("PHONE" :foreground "forest green" :weight bold))))
+
+(set-frame-parameter (selected-frame) 'alpha '(97 . 100))
+(add-to-list 'default-frame-alist '(alpha . (90 . 90)))
+  (defvar my/variable-width-font "Iosevka Aile")
+  (defvar my/fixed-width-font "JetBrainsMono Nerd Font Mono")
+    ;; Org Mode Appearance ------------------------------------
+
+    ;; Load org-faces to make sure we can set appropriate faces
+    (require 'org-faces)
+
+    ;; Hide emphasis markers on formatted text
+    (setq org-hide-emphasis-markers t)
+
+    ;; Resize Org headings
+    (dolist (face '((org-level-1 . 1.2)
+                    (org-level-2 . 1.1)
+                    (org-level-3 . 1.05)
+                    (org-level-4 . 1.0)
+                    (org-level-5 . 1.1)
+                    (org-level-6 . 1.1)
+                    (org-level-7 . 1.1)
+                    (org-level-8 . 1.1)))
+      (set-face-attribute (car face) nil :font my/variable-width-font :weight 'medium :height (cdr face)))
+
+    ;; Make the document title a bit bigger
+    (set-face-attribute 'org-document-title nil :font my/variable-width-font :weight 'bold :height 1.3)
+
+    ;; Make sure certain org faces use the fixed-pitch face when variable-pitch-mode is on
+    (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-formula nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-code nil :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
+
+    ;;; Centering Org Documents --------------------------------
+
+    ;; Install visual-fill-column
+    (unless (package-installed-p 'visual-fill-column)
+      (package-install 'visual-fill-column))
+
+    ;; Configure fill width
+    (setq visual-fill-column-width 110
+          visual-fill-column-center-text t)
+
+    ;;; Org Present --------------------------------------------
+
+    ;; Install org-present if needed
+    (unless (package-installed-p 'org-present)
+      (package-install 'org-present))
+
+    (defun my/org-present-prepare-slide (buffer-name heading)
+      ;; Show only top-level headlines
+      (org-overview)
+
+      ;; Unfold the current entry
+      (org-show-entry)
+
+      ;; Show only direct subheadings of the slide but don't expand them
+      (org-show-children))
+
+    (defun my/org-present-start ()
+      ;; Tweak font sizes
+      (setq-local face-remapping-alist '((default (:height 1.5) variable-pitch)
+                                         (header-line (:height 4.0) variable-pitch)
+                                         (org-document-title (:height 1.75) org-document-title)
+                                         (org-code (:height 1.55) org-code)
+                                         (org-verbatim (:height 1.55) org-verbatim)
+                                         (org-block (:height 1.25) org-block)
+                                         (org-block-begin-line (:height 0.7) org-block)))
+
+      ;; Set a blank header line string to create blank space at the top
+      (setq header-line-format " ")
+
+      ;; Display inline images automatically
+      (org-display-inline-images)
+
+      ;; Center the presentation and wrap lines
+      (visual-fill-column-mode 1)
+      (visual-line-mode 1))
+
+    (defun my/org-present-end ()
+      ;; Reset font customizations
+      (setq-local face-remapping-alist '((default variable-pitch default)))
+
+      ;; Clear the header line string so that it isn't displayed
+      (setq header-line-format nil)
+
+      ;; Stop displaying inline images
+      (org-remove-inline-images)
+
+      ;; Stop centering the document
+      (visual-fill-column-mode 0)
+      (visual-line-mode 0))
+
+    ;; Turn on variable pitch fonts in Org Mode buffers
+    (add-hook 'org-mode-hook 'variable-pitch-mode)
+
+    ;; Register hooks with org-present
+    (add-hook 'org-present-mode-hook 'my/org-present-start)
+    (add-hook 'org-present-mode-quit-hook 'my/org-present-end)
+    (add-hook 'org-present-after-navigate-functions 'my/org-present-prepare-slide)
