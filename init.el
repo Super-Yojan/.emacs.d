@@ -35,3 +35,5 @@
 
 
 (org-babel-load-file "~/.emacs.d/README.org")
+
+;;(server-start) 

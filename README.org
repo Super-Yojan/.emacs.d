@@ -127,6 +127,7 @@ I cannot live with vim keybinds so here we go
         "c" 'org-capture
         "SPC" 'projectile-find-file
         "fp" 'projectile-switch-project
+        "gp" 'projectile-grep
         "ff" 'find-file
         "wl" 'evil-window-right
         "wh" 'evil-window-left
@@ -138,13 +139,15 @@ I cannot live with vim keybinds so here we go
         "eb" 'eval-buffer
         "op" 'treemacs
         "ot" 'vterm
-        "ns" 'elscreen-create
+        "bb" 'ibuffer-jump
         "]" 'evil-next-buffer
         "[" 'evil-prev-buffer
         "ti" 'org-clock-in
         "to" 'org-clock-out
         "/" 'comment-line
         "x" 'helm-M-x
+        "rf" 'org-roam-node-find
+        "bk" 'kill-buffer
         )
 
     ;;  (define-key evil-normal-state-map (kbd "RET") 'org-toggle-todo-and-fold)
@@ -182,6 +185,11 @@ Some default to keep me sane
           (tooltip-mode  0)
           (scroll-bar-mode 0)
 
+;; use-package with package.el:
+(use-package dashboard
+  :straight t
+  :config
+  (dashboard-setup-startup-hook))
 
           (use-package which-key
           :straight t
@@ -446,6 +454,7 @@ The languages that I use often are:
 5. Rust
 6. Elisp
 7. VHDL/Verilog
+8. Java
    
 **** Go
 #+BEGIN_SRC emacs-lisp
@@ -510,7 +519,6 @@ Platformio is great tool for embedded development, using my fork because
 The easiest 
 
 **** Python
-
 #+BEGIN_SRC emacs-lisp
     (use-package python-mode
     :ensure t
@@ -524,6 +532,16 @@ The easiest
   (add-hook 'python-mode-hook 'auto-virtualenv-set-virtualenv)
 
 #+END_SRC
+
+**** Java
+#+begin_src emacs-lisp
+  (use-package eglot-java
+    :straight t
+    )
+  (add-hook 'java-mode-hook 'eglot-java-mode)
+
+
+#+end_src
 *** Note Taking
 
 1. Be able to capture any idea that comes to my head, and look at it later.
@@ -540,24 +558,37 @@ The easiest
 
 **** Organizing Life with Org
 #+BEGIN_SRC emacs-lisp
-    (setq org-agenda-files (quote ("~/org/todo.org"
-                                )))
+      (setq org-agenda-files (quote ("~/org/todo.org"
+                                  )))
 
-      (add-hook 'org-mode-hook 'notebook-mode)
-  (setq org-todo-keywords
-        (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
-                (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
+        (add-hook 'org-mode-hook 'notebook-mode)
+  (setq org-default-notes-file "~/org/indbox.org")
+    (setq org-todo-keywords
+          (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+                  (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
 
-  (setq org-todo-keyword-faces
-        (quote (("TODO" :foreground "red" :weight bold)
-                ("NEXT" :foreground "blue" :weight bold)
-                ("DONE" :foreground "forest green" :weight bold)
-                ("WAITING" :foreground "orange" :weight bold)
-                ("HOLD" :foreground "magenta" :weight bold)
-                ("CANCELLED" :foreground "forest green" :weight bold)
-                ("MEETING" :foreground "forest green" :weight bold)
-                  ("PHONE" :foreground "forest green" :weight bold))))
+    (setq org-todo-keyword-faces
+          (quote (("TODO" :foreground "red" :weight bold)
+                  ("NEXT" :foreground "blue" :weight bold)
+                  ("DONE" :foreground "forest green" :weight bold)
+                  ("WAITING" :foreground "orange" :weight bold)
+                  ("HOLD" :foreground "magenta" :weight bold)
+                  ("CANCELLED" :foreground "forest green" :weight bold)
+                  ("MEETING" :foreground "forest green" :weight bold)
+                    ("PHONE" :foreground "forest green" :weight bold))))
 
+  (setq org-capture-templates
+         '(("t" "todo" entry (file org-default-notes-file)
+  	  "* TODO %?\n%u\n%a\n" :clock-in t :clock-resume t)
+  	 ("m" "Meeting" entry (file org-default-notes-file)
+  	  "* MEETING with %? :MEETING:\n%t" :clock-in t :clock-resume t)
+  	 ("d" "Diary" entry (file+datetree "~/org/diary.org")
+  	  "* %?\n%U\n" :clock-in t :clock-resume t)
+  	 ("i" "Idea" entry (file org-default-notes-file)
+  	  "* %? :IDEA: \n%t" :clock-in t :clock-resume t)
+  	 ("n" "Next Task" entry (file+headline org-default-notes-file "Tasks")
+  	  "** NEXT %? \nDEADLINE: %t") ))
+    
 #+END_SRC
 **** Org-Present
 
