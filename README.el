@@ -342,6 +342,11 @@
 (yas-reload-all)
     (yas-global-mode 1)
 
+(use-package eldoc-box
+  :straight t
+  )
+(add-hook 'eglot-managed-mode-hook #'eldoc-box-hover-at-point-mode t)
+
 (use-package go-mode
       :straight t)
     (require 'go-mode)

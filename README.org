@@ -444,6 +444,10 @@ it.
   (yas-reload-all)
       (yas-global-mode 1)
 
+  (use-package eldoc-box
+    :straight t
+    )
+  (add-hook 'eglot-managed-mode-hook #'eldoc-box-hover-at-point-mode t)
 #+END_SRC
 
 The languages that I use often are:
@@ -508,7 +512,7 @@ The languages that I use often are:
 #+END_quote
 Platformio is great tool for embedded development, using my fork because
   I want to change some of the config on it.
-
+  
 #+BEGIN_COMMENT
   (straight-use-package platformio-mode
     '(platformio-mode :type git :host github :repo "Super-Yojan/PlatformIO-Mode")
