@@ -396,6 +396,15 @@
   )
 (add-hook 'java-mode-hook 'eglot-java-mode)
 
+;; if you use treesitter based typescript-ts-mode (emacs 29+)
+(use-package tide
+  :straight t
+  :after (company flycheck)
+  :hook ((typescript-ts-mode . tide-setup)
+         (tsx-ts-mode . tide-setup)
+         (typescript-ts-mode . tide-hl-identifier-mode)
+         (before-save . tide-format-before-save)))
+
 (setq org-startup-folded t)
 
   (use-package org-roam
