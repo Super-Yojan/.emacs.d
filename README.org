@@ -59,8 +59,8 @@ each part will have its own requirements.
 
 *** Path Management
 #+BEGIN_SRC emacs-lisp
-(setenv "PATH" "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/usr/local/go/bin:/usr/share/")
-(setq exec-path (append '("/usr/local/go/bin" "/usr/bin/jdt-language-server/bin")
+(setenv "PATH" "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/usr/local/go/bin:/usr/share/:/Library/TeX/texbin/:/Users/DTR/Library/Python/3.9/bin/")
+(setq exec-path (append '("/usr/local/go/bin" "/usr/bin/jdt-language-server/bin" "/Library/TeX/texbin/" "/Users/DTR/Library/Python/3.9/bin/")
                         exec-path))
  #+END_SRC
 
@@ -105,6 +105,7 @@ I cannot live with vim keybinds so here we go
           :ensure t
           :config
           (evil-collection-init))
+(require 'org-tempo)
 
   (use-package evil-org
     :ensure t
@@ -459,6 +460,15 @@ The languages that I use often are:
 6. Elisp
 7. VHDL/Verilog
 8. Java
+**** Rust
+#+begin_src emacs-lisp
+(use-package rust-mode
+  :straight t
+  :init
+  (setq rust-mode-treesitter-derive t))
+  (add-hook 'rust-mode-hook 'eglot-ensure)
+  (add-hook 'rust-mode-hook
+          (lambda () (setq indent-tabs-mode nil)))
    
 **** Go
 #+BEGIN_SRC emacs-lisp
@@ -525,13 +535,13 @@ The easiest
 **** Python
 #+BEGIN_SRC emacs-lisp
     (use-package python-mode
-    :ensure t
+    :straight t
       :custom
     (python-shell-interpreter "python3")
     :hook (python-mode . eglot-ensure))
 
     (use-package auto-virtualenv
-  :ensure t)
+  :straight t)
     (require 'auto-virtualenv)
   (add-hook 'python-mode-hook 'auto-virtualenv-set-virtualenv)
 
@@ -579,7 +589,9 @@ The easiest
                                   )))
 
         (add-hook 'org-mode-hook 'notebook-mode)
-  (setq org-default-notes-file "~/org/indbox.org")
+  (setq org-default-notes-file "~/org/inbox.org")
+  (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
+
     (setq org-todo-keywords
           (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
                   (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
@@ -777,3 +789,12 @@ The easiest
   
 
 #+end_src
+
+**** Org-hugo
+#+begin_src emacs-lisp
+(use-package ox-hugo
+  :straight t   ;Auto-install the package from Melpa
+  :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
+  :after ox)
+#+end_src
+
