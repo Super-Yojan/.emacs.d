@@ -343,6 +343,10 @@
 (yas-reload-all)
     (yas-global-mode 1)
 
+(use-package magit
+  :straight t
+  )
+
 (use-package eldoc-box
   :straight t
   )
@@ -363,6 +367,15 @@
   :straight t
   )
 (add-hook 'java-mode-hook 'eglot-java-mode)
+
+;; if you use treesitter based typescript-ts-mode (emacs 29+)
+(use-package tide
+  :straight t
+  :after (company flycheck)
+  :hook ((typescript-ts-mode . tide-setup)
+         (tsx-ts-mode . tide-setup)
+         (typescript-ts-mode . tide-hl-identifier-mode)
+         (before-save . tide-format-before-save)))
 
 (setq org-startup-folded t)
 
@@ -511,6 +524,16 @@
     (add-hook 'org-present-mode-quit-hook 'my/org-present-end)
     (add-hook 'org-present-after-navigate-functions 'my/org-present-prepare-slide)
 
+(use-package ox-hugo
+  :straight t   ;Auto-install the package from Melpa
+  :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
+  :after ox)
+
+(use-package latex-preview-pane
+  :straight t)
+
+(latex-preview-pane-enable)
+
 (straight-use-package
             '(org-modern :type git :host github :repo "minad/org-modern"))
           (require 'org-modern)
@@ -566,8 +589,3 @@
   (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
 
   (global-org-modern-mode)
-
-(use-package ox-hugo
-  :straight t   ;Auto-install the package from Melpa
-  :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
-  :after ox)

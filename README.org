@@ -445,6 +445,10 @@ it.
   (yas-reload-all)
       (yas-global-mode 1)
 
+  (use-package magit
+    :straight t
+    )
+
   (use-package eldoc-box
     :straight t
     )
@@ -727,6 +731,24 @@ The easiest
     (add-hook 'org-present-after-navigate-functions 'my/org-present-prepare-slide)
 #+END_SRC
 
+**** Org-hugo
+#+begin_src emacs-lisp
+(use-package ox-hugo
+  :straight t   ;Auto-install the package from Melpa
+  :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
+  :after ox)
+#+end_src
+
+
+**** Latex-preview-plane
+#+begin_src emacs-lisp
+  (use-package latex-preview-pane
+    :straight t)
+
+  (latex-preview-pane-enable)
+
+#+end_src
+
 
 **** Org-modern
 #+begin_src emacs-lisp
@@ -788,13 +810,5 @@ The easiest
 
   
 
-#+end_src
-
-**** Org-hugo
-#+begin_src emacs-lisp
-(use-package ox-hugo
-  :straight t   ;Auto-install the package from Melpa
-  :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
-  :after ox)
 #+end_src
 
