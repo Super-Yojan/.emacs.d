@@ -104,7 +104,7 @@
           (setq initial-major-mode 'org-mode)
           (menu-bar-mode 0)
           (setq line-number-mode t)
-          (setq display-line-number-mode t)
+          (setq display-line-numbers-mode 1)
           (setq-default indent-tabs-mode nil)
           (setq pop-up-windows nil)
           (tool-bar-mode 0)
@@ -218,23 +218,16 @@
 (straight-use-package
  '(org-bib-mode :type git :host github :repo "rougier/org-bib-mode"))
 
-(use-package doom-themes
-  :ensure t
-  :config
-  ;; Global settings (defaults)
-  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-        doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-one t)
+(use-package olivetti
+  :straight t
+  )
+(require 'olivetti)
 
-  ;; Enable flashing mode-line on errors
-  (doom-themes-visual-bell-config)
-  ;; Enable custom neotree theme (all-the-icons must be installed!)
-  (doom-themes-neotree-config)
-  ;; or for treemacs users
-  (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
-  (doom-themes-treemacs-config)
-  ;; Corrects (and improves) org-mode's native fontification.
-  (doom-themes-org-config))
+(use-package modus-themes
+    :straight t
+    )
+  (require 'modus-themes)
+(modus-themes-select 'modus-operandi )            ; Light theme
 
 (use-package doom-modeline
   :ensure t
@@ -336,6 +329,10 @@
       (straight-use-package
        '(yasnippet :type git :host github :repo "joaotavora/yasnippet"))
 
+(straight-use-package
+       '(origami :type git :host github :repo "gregsexton/origami.el"))
+(require 'origami)
+
     (require 'yasnippet)
   (use-package yasnippet-snippets
     :straight t)
@@ -351,6 +348,43 @@
   :straight t
   )
 (add-hook 'eglot-managed-mode-hook #'eldoc-box-hover-at-point-mode t)
+
+(use-package rust-mode
+  :straight t
+  :init
+  (setq rust-mode-treesitter-derive t))
+  (add-hook 'rust-mode-hook 'eglot-ensure)
+  (add-hook 'rust-mode-hook
+          (lambda () (setq indent-tabs-mode nil)))
+
+(use-package go-mode
+      :straight t)
+    (require 'go-mode)
+          (require 'project)
+
+        (defun project-find-go-module (dir)
+          (when-let ((root (locate-dominating-file dir "go.mod")))
+            (cons 'go-module root)))
+(defun eglot-format-buffer-on-save ()
+  (add-hook 'before-save-hook #'eglot-format-buffer -10 t))
+(add-hook 'go-mode-hook #'eglot-format-buffer-on-save)
+
+        (cl-defmethod project-root ((project (head go-module)))
+          (cdr project))
+
+        (add-hook 'project-find-functions #'project-find-go-module)
+
+  (setq-default eglot-workspace-configuration
+      '((:gopls .
+          ((staticcheck . t)
+           (matcher . "CaseSensitive")))))
+
+
+    (add-hook 'go-mode-hook 'eglot-ensure)
+  (add-hook 'before-save-hook
+      (lambda ()
+          (call-interactively 'eglot-code-action-organize-imports))
+      nil t)
 
 (use-package python-mode
   :straight t
@@ -388,9 +422,11 @@
   (org-roam-db-autosync-mode)
 
 (setq org-agenda-files (quote ("~/org/todo.org"
+                                   "~/org/inbox.org"
                                 )))
 
       (add-hook 'org-mode-hook 'notebook-mode)
+      (add-hook 'org-mode-hook 'org-modern-mode)
 (setq org-default-notes-file "~/org/inbox.org")
 (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
 
@@ -534,6 +570,10 @@
 
 (latex-preview-pane-enable)
 
+ (straight-use-package
+            '(org-auctex :type git :host github :repo "karthink/org-auctex"))
+          (require 'org-auctex)
+
 (straight-use-package
             '(org-modern :type git :host github :repo "minad/org-modern"))
           (require 'org-modern)
@@ -547,14 +587,14 @@
   (modus-themes-load-operandi)
 
   ;; Choose some fonts
-  ;; (set-face-attribute 'default nil :family "Iosevka")
-  ;; (set-face-attribute 'variable-pitch nil :family "Iosevka Aile")
-  ;; (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
+  (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font Mono 12")
+  (set-face-attribute 'variable-pitch nil :family "JetBrainsMono Nerd Font Mono 12")
+  (set-face-attribute 'org-modern-symbol nil :family "JetBrainsMono Nerd Font Mono 12")
 
   ;; Add frame borders and window dividers
-  (modify-all-frames-parameters
-   '((right-divider-width . 40)
-     (internal-border-width . 40)))
+  ;; (modify-all-frames-parameters
+   ;; '((right-divider-width . 40)
+     ;; (internal-border-width . 40)))
   (dolist (face '(window-divider
                   window-divider-first-pixel
                   window-divider-last-pixel))
@@ -589,3 +629,7 @@
   (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
 
   (global-org-modern-mode)
+
+(use-package mu4e
+  :straight t
+  )
