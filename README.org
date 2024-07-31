@@ -59,8 +59,8 @@ each part will have its own requirements.
 
 *** Path Management
 #+begin_src emacs-lisp
-(setenv "PATH" "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/usr/local/go/bin:/usr/share/:/Library/TeX/texbin/:/Users/DTR/Library/Python/3.9/bin/")
-(setq exec-path (append '("/usr/local/go/bin" "/usr/bin/jdt-language-server/bin" "/Library/TeX/texbin/" "/Users/DTR/Library/Python/3.9/bin/")
+(setenv "PATH" "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/usr/local/go/bin:/usr/share/:/Library/TeX/texbin/:/Users/DTR/Library/Python/3.9/bin/:/opt/homebrew/bin/")
+(setq exec-path (append '("/usr/local/go/bin" "/usr/bin/jdt-language-server/bin" "/Library/TeX/texbin/" "/Users/DTR/Library/Python/3.9/bin/" "/opt/homebrew/bin/")
                         exec-path))
  #+end_src
 
@@ -138,7 +138,7 @@ I cannot live with vim keybinds so here we go
         "ws" 'evil-window-new
         "wq" 'evil-quit
         "eb" 'eval-buffer
-        "op" 'treemacs
+        "op" 'neotree
         "ot" 'vterm
         "bb" 'ibuffer-jump
         "]" 'evil-next-buffer
@@ -208,7 +208,7 @@ Some default to keep me sane
 
 
 
-  (set-frame-font "JetBrainsMono Nerd Font Mono 12" nil t)
+  (set-frame-font "JetBrainsMono Nerd Font Mono 14" nil t)
 
 
           (use-package ido-vertical-mode
@@ -270,35 +270,36 @@ Some default to keep me sane
 I like to keep my ui minimal, and nano emacs is perfect for this.
 
 #+begin_src emacs-lisp
-        ;; (straight-use-package
-            ;; '(nano :type git :host github :repo "rougier/nano-emacs"))
-          (straight-use-package
-            '(org-margin :type git :host github :repo "rougier/org-margin"))
-          (require 'org-margin)
+      ;; (straight-use-package
+          ;; '(nano :type git :host github :repo "rougier/nano-emacs"))
+        (straight-use-package
+          '(org-margin :type git :host github :repo "rougier/org-margin"))
+        (require 'org-margin)
 
-          (straight-use-package
-           '(svg-tag-mode :type git :host github :repo "rougier/svg-tag-mode"))
-          (require 'svg-tag-mode)
-        (svg-tag-mode 1)
-
-          (setq svg-tag-tags
-                '(("TODO" . ((lambda (tag) (svg-tag-make tag))))))
+        (straight-use-package
+         '(svg-tag-mode :type git :host github :repo "rougier/svg-tag-mode"))
+        (require 'svg-tag-mode)
+      (svg-tag-mode 1)
 
         (setq svg-tag-tags
-              '(("DONE" . ((lambda (tag) (svg-tag-make tag))))))
+              '(("TODO" . ((lambda (tag) (svg-tag-make tag))))))
 
-        (setq svg-tag-tags
-              '(("CANCLED" . ((lambda (tag) (svg-tag-make tag))))))
+      (setq svg-tag-tags
+            '(("DONE" . ((lambda (tag) (svg-tag-make tag))))))
+
+      (setq svg-tag-tags
+            '(("CANCLED" . ((lambda (tag) (svg-tag-make tag))))))
 
 
-          (straight-use-package
-           '(notebook-mode :type git :host github :repo "rougier/notebook-mode"))
-          (require 'notebook)
+        (straight-use-package
+         '(notebook-mode :type git :host github :repo "rougier/notebook-mode"))
+        (require 'notebook)
 
-    (straight-use-package
-     '(pdf-drop-mode :type git :host github :repo "rougier/pdf-drop-mode"))
-    (straight-use-package
-     '(org-bib-mode :type git :host github :repo "rougier/org-bib-mode"))
+  (straight-use-package
+   '(org-bib-mode :type git :host github :repo "rougier/org-bib-mode"))
+
+  (straight-use-package
+   '(pdf-tools :type git :host github :repo "vedang/pdf-tools"))
 
 
 #+end_src
@@ -318,7 +319,7 @@ Adding doom themes
       :straight t
       )
     (require 'modus-themes)
-  (modus-themes-select 'modus-operandi )            ; Light theme
+  (modus-themes-select 'modus-operandi-tinted )            ; Light theme
 
 #+end_src
 
@@ -347,6 +348,15 @@ Adding doom themes
   :ensure t
   :hook (after-init . doom-modeline-mode))
 #+end_src
+
+#+begin_src emacs-lisp
+
+  (use-package neotree
+    :straight t)
+  (require 'neotree)
+
+#+end_src
+
 
   Config for side buffer, I don't think I will use it tho
 #+begin_src emacs-lisp
@@ -789,9 +799,9 @@ The easiest
     (modus-themes-load-operandi)
 
     ;; Choose some fonts
-    (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font Mono 12")
-    (set-face-attribute 'variable-pitch nil :family "JetBrainsMono Nerd Font Mono 12")
-    (set-face-attribute 'org-modern-symbol nil :family "JetBrainsMono Nerd Font Mono 12")
+    (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font Mono 14")
+    (set-face-attribute 'variable-pitch nil :family "JetBrainsMono Nerd Font Mono 14")
+    (set-face-attribute 'org-modern-symbol nil :family "JetBrainsMono Nerd Font Mono 14")
 
     ;; Add frame borders and window dividers
     ;; (modify-all-frames-parameters

@@ -1,5 +1,5 @@
-(setenv "PATH" "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/usr/local/go/bin:/usr/share/:/Library/TeX/texbin/:/Users/DTR/Library/Python/3.9/bin/")
-(setq exec-path (append '("/usr/local/go/bin" "/usr/bin/jdt-language-server/bin" "/Library/TeX/texbin/" "/Users/DTR/Library/Python/3.9/bin/")
+(setenv "PATH" "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/usr/local/go/bin:/usr/share/:/Library/TeX/texbin/:/Users/DTR/Library/Python/3.9/bin/:/opt/homebrew/bin/")
+(setq exec-path (append '("/usr/local/go/bin" "/usr/bin/jdt-language-server/bin" "/Library/TeX/texbin/" "/Users/DTR/Library/Python/3.9/bin/" "/opt/homebrew/bin/")
                         exec-path))
 
 (use-package projectile
@@ -69,7 +69,7 @@
         "ws" 'evil-window-new
         "wq" 'evil-quit
         "eb" 'eval-buffer
-        "op" 'treemacs
+        "op" 'neotree
         "ot" 'vterm
         "bb" 'ibuffer-jump
         "]" 'evil-next-buffer
@@ -133,7 +133,7 @@
 
 
 
-  (set-frame-font "JetBrainsMono Nerd Font Mono 12" nil t)
+  (set-frame-font "JetBrainsMono Nerd Font Mono 14" nil t)
 
 
           (use-package ido-vertical-mode
@@ -214,9 +214,10 @@
       (require 'notebook)
 
 (straight-use-package
- '(pdf-drop-mode :type git :host github :repo "rougier/pdf-drop-mode"))
-(straight-use-package
  '(org-bib-mode :type git :host github :repo "rougier/org-bib-mode"))
+
+(straight-use-package
+ '(pdf-tools :type git :host github :repo "vedang/pdf-tools"))
 
 (use-package olivetti
   :straight t
@@ -227,11 +228,15 @@
     :straight t
     )
   (require 'modus-themes)
-(modus-themes-select 'modus-operandi )            ; Light theme
+(modus-themes-select 'modus-operandi-tinted )            ; Light theme
 
 (use-package doom-modeline
   :ensure t
   :hook (after-init . doom-modeline-mode))
+
+(use-package neotree
+  :straight t)
+(require 'neotree)
 
 (defun ibuffer-advice (format)
   (with-current-buffer "*Ibuffer*"
@@ -587,9 +592,9 @@
   (modus-themes-load-operandi)
 
   ;; Choose some fonts
-  (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font Mono 12")
-  (set-face-attribute 'variable-pitch nil :family "JetBrainsMono Nerd Font Mono 12")
-  (set-face-attribute 'org-modern-symbol nil :family "JetBrainsMono Nerd Font Mono 12")
+  (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font Mono 14")
+  (set-face-attribute 'variable-pitch nil :family "JetBrainsMono Nerd Font Mono 14")
+  (set-face-attribute 'org-modern-symbol nil :family "JetBrainsMono Nerd Font Mono 14")
 
   ;; Add frame borders and window dividers
   ;; (modify-all-frames-parameters
