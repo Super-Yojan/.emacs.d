@@ -33,7 +33,6 @@
 
    (require 'use-package)
 
-
-(org-babel-load-file "~/.emacs.d/README.org")
+ (org-babel-load-file "~/.emacs.d/README.org")
 
 ;;(server-start) 

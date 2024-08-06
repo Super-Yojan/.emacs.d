@@ -98,95 +98,99 @@
     (evil-global-set-key 'motion (kbd "<up>") 'drmoscovium/dont-arrow)
 
 (setq inhibit-startup-screen t)
-          (setq inhibit-startup-echo-area-message t)
-          (setq inhibit-startup-message t)
-          (setq initial-scratch-message nil)
-          (setq initial-major-mode 'org-mode)
-          (menu-bar-mode 0)
-          (setq line-number-mode t)
-          (setq display-line-numbers-mode 1)
-          (setq-default indent-tabs-mode nil)
-          (setq pop-up-windows nil)
-          (tool-bar-mode 0)
-          (tooltip-mode  0)
-          (scroll-bar-mode 0)
+            (setq inhibit-startup-echo-area-message t)
+            (setq inhibit-startup-message t)
+            (setq initial-scratch-message nil)
+            (setq initial-major-mode 'org-mode)
+            (menu-bar-mode 0)
+            (setq line-number-mode t)
+            (setq display-line-numbers-mode 1)
+            (setq-default indent-tabs-mode nil)
+            (setq pop-up-windows nil)
+            (tool-bar-mode 0)
+            (tooltip-mode  0)
+            (scroll-bar-mode 0)
+(add-hook 'image-mode-hook
+  (lambda ()
+    (auto-revert-mode)
+    (auto-image-file-mode)))
 
-;; use-package with package.el:
-(use-package dashboard
-  :straight t
-  :config
-  (dashboard-setup-startup-hook))
+  ;; use-package with package.el:
+  (use-package dashboard
+    :straight t
+    :config
+    (dashboard-setup-startup-hook))
 
-          (use-package which-key
+            (use-package which-key
+            :straight t
+              :init (which-key-mode)
+              :diminish which-key-mode
+              :config
+              (setq which-key-idle-delay 0.3))
+
+            (use-package eterm-256color
+              :hook (term-mode . eterm-256color-mode))
+
+            (use-package all-the-icons-dired
+        :straight t
+              :hook (dired-mode . all-the-icons-dired-mode))
+
+
+
+    (set-frame-font "JetBrainsMono Nerd Font Mono 14" nil t)
+
+
+            (use-package ido-vertical-mode
           :straight t
-            :init (which-key-mode)
-            :diminish which-key-mode
-            :config
-            (setq which-key-idle-delay 0.3))
+          )
+            (require 'ido-vertical-mode)
+            (ido-mode 1)
+            (ido-vertical-mode 1)
 
-          (use-package eterm-256color
-            :hook (term-mode . eterm-256color-mode))
+            (use-package helm :straight t)
 
-          (use-package all-the-icons-dired
-      :straight t
-            :hook (dired-mode . all-the-icons-dired-mode))
+            (use-package popper
+              :ensure t ; or :straight t
+              :bind (("C-`"   . popper-toggle)
+                     ("M-`"   . popper-cycle)
+                     ("C-M-`" . popper-toggle-type))
+              :init
+              (setq popper-reference-buffers
+                    '("\\*Messages\\*"
+                  "\\*vterm\\*"
+                      "Output\\*$"
+                      "\\*Async Shell Command\\*"
+                      help-mode
+                      compilation-mode))
+              (popper-mode +1)
+              (popper-echo-mode +1))                ; For echo area hints
 
 
+            (use-package dired
+              :ensure nil
+              :commands (dired dired-jump)
+              :bind (("C-x C-j" . dired-jump))
+              :config
+              (evil-collection-define-key 'normal 'dired-mode-map
+                "h" 'dired-up-directory
+                "l" 'dired-find-file))
 
-  (set-frame-font "JetBrainsMono Nerd Font Mono 14" nil t)
+            (use-package dired-single
+      :ensure t)
 
 
-          (use-package ido-vertical-mode
+            (use-package tree-sitter
         :straight t
         )
-          (require 'ido-vertical-mode)
-          (ido-mode 1)
-          (ido-vertical-mode 1)
+            (use-package tree-sitter-langs
+    :straight t
+    )
+            (require 'tree-sitter)
+            (require 'tree-sitter-langs)
+            ;; (use-package evil-nerd-commenter
+            ;;   :bind ("gcc" . evilnc-comment-or-uncomment-lines))
 
-          (use-package helm :straight t)
-
-          (use-package popper
-            :ensure t ; or :straight t
-            :bind (("C-`"   . popper-toggle)
-                   ("M-`"   . popper-cycle)
-                   ("C-M-`" . popper-toggle-type))
-            :init
-            (setq popper-reference-buffers
-                  '("\\*Messages\\*"
-                "\\*vterm\\*"
-                    "Output\\*$"
-                    "\\*Async Shell Command\\*"
-                    help-mode
-                    compilation-mode))
-            (popper-mode +1)
-            (popper-echo-mode +1))                ; For echo area hints
-
-
-          (use-package dired
-            :ensure nil
-            :commands (dired dired-jump)
-            :bind (("C-x C-j" . dired-jump))
-            :config
-            (evil-collection-define-key 'normal 'dired-mode-map
-              "h" 'dired-up-directory
-              "l" 'dired-find-file))
-
-          (use-package dired-single
-    :ensure t)
-
-
-          (use-package tree-sitter
-      :straight t
-      )
-          (use-package tree-sitter-langs
-  :straight t
-  )
-          (require 'tree-sitter)
-          (require 'tree-sitter-langs)
-          ;; (use-package evil-nerd-commenter
-          ;;   :bind ("gcc" . evilnc-comment-or-uncomment-lines))
-
-          (setq backup-directory-alist            '((".*" . "~/.Trash")))
+            (setq backup-directory-alist            '((".*" . "~/.Trash")))
 
 ;; (straight-use-package
         ;; '(nano :type git :host github :repo "rougier/nano-emacs"))
@@ -589,7 +593,7 @@
   (menu-bar-mode -1)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
-  (modus-themes-load-operandi)
+  ;; (modus-themes-load-operandi)
 
   ;; Choose some fonts
   (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font Mono 14")
@@ -634,6 +638,31 @@
   (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
 
   (global-org-modern-mode)
+
+;; (require 'org-babel)
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '(
+   (python . t)
+   ;; (ipython . t)
+   (sh . t)
+   (shell . t)
+   ;; Include other languages here...
+   ))
+;; Syntax highlight in #+BEGIN_SRC blocks
+(setq org-src-fontify-natively t)
+;; Don't prompt before running code in org
+(setq org-confirm-babel-evaluate nil)
+;; Fix an incompatibility between the ob-async and ob-ipython packages
+;; (setq ob-async-no-async-languages-alist '("ipython"))
+
+;;   (straight-use-package
+ ;;        '(ob-mermaid :type git :host github :repo "arnm/ob-mermaid"))
+
+(use-package ob-mermaid
+	:ensure t)
+  (require 'ob-mermaid)
+  (setq ob-mermaid-cli-path "/home/ygautam/.nvm/versions/node/v22.5.1/bin/mmdc")
 
 (use-package mu4e
   :straight t
