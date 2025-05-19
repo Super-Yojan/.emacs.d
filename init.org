@@ -48,58 +48,74 @@ Settings in this block are tangled into =~/.emacs.d/early-init.el=.
 
 * Core Setup & Package Management (Straight.el)
 #+begin_src emacs-lisp
-;; -*- lexical-binding: t -*-
+  ;; -*- lexical-binding: t -*-
 
-;; Bootstrap straight.el
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el"
-                         (or (bound-and-true-p straight-base-dir)
-                             user-emacs-directory)))
-      (bootstrap-version 7))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
+  ;; Bootstrap straight.el
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+         (expand-file-name "straight/repos/straight.el/bootstrap.el"
+                           (or (bound-and-true-p straight-base-dir)
+                               user-emacs-directory)))
+        (bootstrap-version 7))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+(setq straight-git-executable "/usr/bin/git") ;; Adjust path as needed
 
-;; Configure use-package to work with straight.el
-(straight-use-package 'use-package) ; Ensure use-package itself is installed via straight
+  ;; Configure use-package to work with straight.el
+  (straight-use-package 'use-package) ; Ensure use-package itself is installed via straight
 
-(use-package use-package
-  :ensure t ; Tells straight.el to manage use-package
-  :config
-  ;; For packages managed by straight.el, :ensure t will use straight.
-  ;; For built-in features not managed by straight, use :straight nil.
-  (setq use-package-always-ensure t)
-  ;; Make straight.el the default method for use-package :ensure t
-  (setq straight-use-package-by-default t))
+  (use-package use-package
+    :ensure t ; Tells straight.el to manage use-package
+    :config
+    ;; For packages managed by straight.el, :ensure t will use straight.
+    ;; For built-in features not managed by straight, use :straight nil.
+    (setq use-package-always-ensure t)
+    ;; Make straight.el the default method for use-package :ensure t
+    (setq straight-use-package-by-default t))
 
-;; Basic Emacs behavior tweaks
-(setq-default
- ring-bell-function 'ignore
- column-number-mode t
- show-paren-mode t
- delete-selection-mode t
- transient-mark-mode t
- sentence-end-double-space nil
- fill-column 80
- mouse-yank-at-point t)
-(setq initial-major-mode 'org-mode)
+  ;; Basic Emacs behavior tweaks
+  (setq-default
+   ring-bell-function 'ignore
+   column-number-mode t
+   show-paren-mode t
+   delete-selection-mode t
+   transient-mark-mode t
+   sentence-end-double-space nil
+   fill-column 80
+   mouse-yank-at-point t)
+  (setq initial-major-mode 'org-mode)
 
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 4)
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 4)
 
-(let ((xdg-cache-home (or (getenv "XDG_CACHE_HOME")
-                          (expand-file-name "~/.cache"))))
-  (setq backup-directory-alist `(("." . ,(expand-file-name "emacs/backups/" xdg-cache-home)))
-        auto-save-file-name-transforms `((".*" ,(expand-file-name "emacs/auto-save/" xdg-cache-home) t))))
-(make-directory (expand-file-name "emacs/backups/" (getenv "XDG_CACHE_HOME")) t)
-(make-directory (expand-file-name "emacs/auto-save/" (getenv "XDG_CACHE_HOME")) t)
-(setq backup-by-copying t delete-old-versions t kept-new-versions 6 kept-old-versions 2 version-control t)
+;; Configure backup and auto-save directories inside ~/.emacs.d/.cache/
+(let* ((emacs-dotfiles-cache-dir (expand-file-name ".cache" user-emacs-directory))
+       (emacs-backups-dir (expand-file-name "backups" emacs-dotfiles-cache-dir))
+       (emacs-auto-save-dir (expand-file-name "auto-save" emacs-dotfiles-cache-dir)))
+  ;; Set the variables
+  (setq backup-directory-alist `(("." . ,emacs-backups-dir)))
+  (setq auto-save-file-name-transforms `((".*" ,emacs-auto-save-dir t)))
+  (setq auto-save-list-file-prefix (concat emacs-auto-save-dir "/sessions/")) ; For auto-save session data
+
+  ;; Ensure the directories exist
+  (make-directory emacs-backups-dir :parents)
+  (make-directory emacs-auto-save-dir :parents)
+  (make-directory (concat emacs-auto-save-dir "/sessions/") :parents) ; For session files
+
+  ;; Other backup settings
+  (setq backup-by-copying t          ; Avoid issues with hard links
+        delete-old-versions t        ; Delete old backups automatically
+        kept-new-versions 6
+        kept-old-versions 2
+        version-control t            ; Use version numbers for backups
+        auto-save-default t          ; Ensure auto-saving is on
+        create-lockfiles nil))       ; Disable lockfiles if you find them annoying (optional)
 #+end_src
 
 ** Path Management
@@ -121,10 +137,12 @@ Settings in this block are tangled into =~/.emacs.d/early-init.el=.
     (setq doom-themes-enable-bold t
           doom-themes-enable-italic t)
     :config
-    (load-theme 'doom-one t)
+    (load-theme 'doom-gruvbox-light t)
     (doom-themes-visual-bell-config)
     (doom-themes-neotree-config)
     (doom-themes-org-config))
+  (use-package vterm
+    :ensure t)
 
   (use-package doom-modeline
     :ensure t
@@ -139,7 +157,7 @@ Settings in this block are tangled into =~/.emacs.d/early-init.el=.
     :commands dashboard-open
     :config
     (dashboard-setup-startup-hook)
-    (setq dashboard-startup-banner (expand-file-name "assets/my-banner.png" user-emacs-directory))
+    (setq dashboard-startup-banner (expand-file-name "assets/profile.gif" user-emacs-directory))
     (setq dashboard-image-banner-max-height 12)
     (setq dashboard-center-content t)
     (setq dashboard-items '((recents . 5) (projects . 5) (agenda . 5) (bookmarks . 3)))
@@ -192,6 +210,26 @@ Settings in this block are tangled into =~/.emacs.d/early-init.el=.
   (use-package olivetti :ensure t :commands olivetti-mode)
 #+end_src
 
+#+begin_src emacs-lisp
+  ;; --- Translucency ---
+  ;; Set frame opacity. Values are from 0 (fully transparent) to 100 (fully opaque).
+  ;; You can use a single value for consistent opacity, or a cons cell
+  ;; (ACTIVE-OPACITY . INACTIVE-OPACITY) for different states.
+  ;; This requires your window manager/compositor to support _NET_WM_WINDOW_OPACITY.
+  ;; Example: 90% opaque when active, 75% when inactive.
+  (add-to-list 'default-frame-alist '(alpha . (97 . 75)))
+
+  ;; If you want all frames, including the initial one, to have this opacity from the very start,
+  ;; you can also add it to `initial-frame-alist`.
+  ;; (add-to-list 'initial-frame-alist '(alpha . (90 . 75)))
+  ;; Note: Sometimes setting it only in default-frame-alist is sufficient for the initial frame too.
+
+  ;; To experiment on an existing frame, you can evaluate:
+  ;; (set-frame-parameter nil 'alpha 85)
+  ;; (set-frame-parameter nil 'alpha '(90 . 70))
+
+#+end_src
+
 * Evil Mode, Keybindings, and Which-Key
 #+begin_src emacs-lisp
   (use-package which-key
@@ -215,13 +253,14 @@ Settings in this block are tangled into =~/.emacs.d/early-init.el=.
 
   (use-package general
     :ensure t
-    :after (evil popper projectile neotree vterm helm olivetti dashboard ace-window restart-emacs)
+    :demand t                             ;
+    ;:after (evil popper projectile neotree vterm helm olivetti dashboard ace-window restart-emacs)
     :config
-    (general-evil-setup t)
-    (general-create-definer my-leader-def
-      :keymaps '(normal visual motion emacs) :prefix "SPC" :global-prefix "C-SPC")
-
-    (my-leader-def
+    (general-define-key
+      :prefix "SPC"
+      :states '(normal visual motion emacs)
+      :keymaps 'override
+      ""    '(nil :wk "Leader")
       ;; Files & Buffers
       "f f" '(find-file :wk "Find File")
       "f d" '(my-directory-traverse :wk "Traverse Directory")
@@ -257,6 +296,7 @@ Settings in this block are tangled into =~/.emacs.d/early-init.el=.
       "o a" '(org-agenda :wk "Org Agenda") "o c" '(org-capture :wk "Org Capture")
       "o l" '(org-store-link :wk "Org Store Link") "o t" '(my-open-vterm-in-popper :wk "Toggle Vterm (Popper)")
       "o u p" '(my-open-paper-from-url :wk "Open Paper from URL") "o m" '(olivetti-mode :wk "Toggle Olivetti Mode")
+      "o p" '(neotree-toggle :wk "Toggle neotree")
 
       ;; Popper Toggle
       "P t" '(popper-toggle :wk "Toggle Popper Window") "P n" '(popper-cycle :wk "Cycle Popper Windows")
@@ -348,7 +388,7 @@ Using Helm for completion, Eglot for LSP, Company for in-buffer completion, and 
   (use-package eglot
     :ensure t ; Ensure eglot is installed if not on Emacs 29+
     :commands (eglot eglot-ensure)
-    :hook ((prog-mode text-mode) . eglot-ensure) ; Try to start eglot in prog/text modes
+    :hook ((prog-mode ) . eglot-ensure) ; Try to start eglot in prog/text modes
     :config
     (setq eglot-autoshutdown t eglot-send-changes-idle-time 0.5)
     (add-to-list 'eglot-server-programs '(go-mode . ("gopls")))
@@ -556,7 +596,64 @@ Using tree-sitter modes. LSP (tsserver) is handled by `eglot` block. Tide from y
   ;;(use-package org-auctex :ensure (:host github :repo "karthink/org-auctex") :after (org tex) :hook (org-mode . org-auctex-mode))
 #+end_src
 
+* Denote
+
+#+begin_src emacs-lisp
+  (use-package denote
+    :ensure t
+    :hook (dired-mode . denote-dired-mode)
+    ;:bind
+    ; Don't bind anything here, using general to bind everything
+    :config
+    (setq denote-directory (expand-file-name "~/org/"))
+    (denote-rename-buffer-mode 1)
+    )
+#+end_src
+
+
+
 * Document Support (PDF, LaTeX)
+
+#+begin_src emacs-lisp
+  (use-package ox-typst
+  :after org
+  :ensure t)
+
+
+  (require 'ob)
+
+(defvar org-babel-default-header-args:typst
+  '((:results . "typst") (:exports . "results"))
+  "Default arguments to use when evaluating a typst source block.")
+
+(defun org-babel-expand-body:typst (body params)
+  "Expand BODY according to PARAMS, return the expanded body."
+  (let ((vars (org-babel--get-vars params)))
+    (mapc
+     (lambda (pair)
+       (let ((name (symbol-name (car pair)))
+	     (value (cdr pair)))
+	 (setq body
+	       (replace-regexp-in-string
+		(concat "$" (regexp-quote name))
+		(if (stringp value) value (format "%S" value))
+		body
+		t
+		t))))
+     vars)
+    body))
+
+(defun org-babel-execute:typst (body params)
+  "Execute a block of Dot code with org-babel.
+This function is called by `org-babel-execute-src-block'."
+  body)
+
+(defun org-babel-prep-session:typst (_session _params)
+  "Return an error because Dot does not support sessions."
+  (error "Dot does not support sessions"))
+#+end_src
+
+
 #+begin_src emacs-lisp
   (use-package pdf-tools
     :ensure t :magic ("%PDF" . pdf-view-mode)
@@ -611,5 +708,6 @@ Using tree-sitter modes. LSP (tsserver) is handled by `eglot` block. Tide from y
   ;; Final GC threshold is set by the hook in early-init.el
   (setq read-process-output-max (* 1024 1024)) ; 1MB for process output
 
-  (message "✅ Yojan's Merged Emacs Config Loaded Successfully! (Timestamp: %s)" (current-time-string))
+  (dashboard-open)
+
 #+end_src

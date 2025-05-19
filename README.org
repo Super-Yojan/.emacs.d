@@ -217,12 +217,13 @@ Settings in this block are tangled into =~/.emacs.d/early-init.el=.
     :ensure t
     :after (evil popper projectile neotree vterm helm olivetti dashboard ace-window restart-emacs)
     :config
-    (general-evil-setup t)
-    (general-create-definer my-leader-def
-      :keymaps '(normal visual motion emacs) :prefix "SPC" :global-prefix "C-SPC")
-
-    (my-leader-def
-      ;; Files & Buffers
+   
+    (general-define-key
+      :prefix "SPC"
+      :states '(normal visual motion emacs)
+      :keymaps 'override
+      ""    '(nil :wk "Leader")      ;; Files & Buffers
+      
       "f f" '(find-file :wk "Find File")
       "f d" '(my-directory-traverse :wk "Traverse Directory")
       "f s" '(save-buffer :wk "Save File")
