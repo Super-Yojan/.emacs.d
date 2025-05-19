@@ -338,9 +338,10 @@ Using Helm for completion, Eglot for LSP, Company for in-buffer completion, and 
            ("C-s" . company-filter-candidates)))
 
   (use-package yasnippet
-    :ensure (:host github :repo "joaotavora/yasnippet")
+    :ensure t
     :hook (prog-mode . yas-minor-mode)
     :config (yas-reload-all))
+  
   (use-package yasnippet-snippets :ensure t :after yasnippet)
 
   ;; --- LSP Client (Eglot) ---
@@ -362,9 +363,6 @@ Using Helm for completion, Eglot for LSP, Company for in-buffer completion, and 
   (use-package eldoc-box
     :ensure t :hook (eglot-managed-mode . eldoc-box-hover-at-point-mode))
 
-  (use-package origami
-    :ensure (:host github :repo "gregsexton/origami.el")
-    :hook (prog-mode . origami-mode))
 
   ;; Flycheck for on-the-fly syntax checking (integrates with Eglot)
   (use-package flycheck
@@ -419,14 +417,6 @@ LSP server associations are primarily in the main `eglot` block.
 
 ** Python
 #+begin_src emacs-lisp
-  (use-package python-ts-mode
-    :straight nil :mode "\\.py\\'" :interpreter "python3"
-    :hook ((python-ts-mode . my-prog-mode-common-hook) (python-ts-mode . eglot-ensure))
-    :config (add-hook 'python-ts-mode-hook (lambda () (setq indent-tabs-mode nil tab-width 4)) nil t))
-  (use-package python-mode ; Fallback
-    :straight nil :mode "\\.py\\'" :interpreter "python3"
-    :hook ((python-mode . my-prog-mode-common-hook) (python-mode . eglot-ensure))
-    :config (setq python-indent-offset 4 indent-tabs-mode nil))
   (use-package pyvenv :ensure t :hook ((python-mode python-ts-mode) . pyvenv-mode))
   (use-package auto-virtualenv :ensure t :hook ((python-mode python-ts-mode) . auto-virtualenv-set-virtualenv))
 #+end_src
@@ -446,10 +436,6 @@ LSP server associations are primarily in the main `eglot` block.
 ** JavaScript / TypeScript
 Using tree-sitter modes. LSP (tsserver) is handled by `eglot` block. Tide from your base for extra features.
 #+begin_src emacs-lisp
-  (use-package js-ts-mode
-    :straight nil :mode ("\\.js\\'" . js-ts-mode) ("\\.mjs\\'" . js-ts-mode)
-    :hook ((js-ts-mode . my-prog-mode-common-hook) (js-ts-mode . eglot-ensure))
-    :config (add-hook 'js-ts-mode-hook (lambda () (setq indent-tabs-mode nil tab-width 2)) nil t))
 
   (use-package typescript-ts-mode
     :straight nil :mode ("\\.ts\\'" . typescript-ts-mode) ("\\.tsx\\'" . tsx-ts-mode)
@@ -526,7 +512,7 @@ Using tree-sitter modes. LSP (tsserver) is handled by `eglot` block. Tide from y
     (add-hook 'org-mode-hook #'org-indent-mode))
 
   (use-package org-modern
-    :ensure (:host github :repo "minad/org-modern")
+    :ensure t 
     :hook (org-mode . org-modern-mode)
     :config
     (setq org-auto-align-tags nil org-tags-column 0 org-catch-invisible-edits 'show-and-error
@@ -563,22 +549,11 @@ Using tree-sitter modes. LSP (tsserver) is handled by `eglot` block. Tide from y
              ((alltodo "" ((org-agenda-overriding-header "All Projects")
                            (org-super-agenda-groups '(("Active Projects" :todo "PROJ"))))))))))
 
-  (use-package org-roam
-    :ensure t
-    :init
-    (setq org-roam-ui-sync-theme t org-roam-ui-follow t org-roam-ui-update-on-save t
-          org-roam-completion-everywhere t)
-    (setq org-roam-directory (expand-file-name "roam" org-directory))
-    :config
-    (org-roam-db-autosync-mode)
-    :bind (("C-c n l" . org-roam-buffer-toggle) ("C-c n f" . org-roam-node-find)
-           ("C-c n i" . org-roam-node-insert) ("C-c n t" . org-roam-tag-add)))
-    ;; Leader binding "SPC r f" for org-roam-node-find already in general.el
 
-  (use-package dslide :ensure (:host github :repo "positron-solutions/dslide") :commands dslide-mode)
+  (use-package dslide :ensure t :commands dslide-mode)
   (use-package ox-hugo :ensure t :after ox)
   (use-package latex-preview-pane :ensure t :commands latex-preview-pane-enable)
-  (use-package org-auctex :ensure (:host github :repo "karthink/org-auctex") :after (org tex) :hook (org-mode . org-auctex-mode))
+  ;;(use-package org-auctex :ensure (:host github :repo "karthink/org-auctex") :after (org tex) :hook (org-mode . org-auctex-mode))
 #+end_src
 
 * Document Support (PDF, LaTeX)
@@ -592,18 +567,7 @@ Using tree-sitter modes. LSP (tsserver) is handled by `eglot` block. Tide from y
     (define-key pdf-view-mode-map (kbd "<mouse-4>") #'pdf-view-scroll-down-or-previous-page)
     (define-key pdf-view-mode-map (kbd "<mouse-5>") #'pdf-view-scroll-up-or-next-page))
 
-  (use-package tex ; AUCTeX
-    :ensure auctex
-    :defer t
-    :config
-    (setq TeX-auto-save t TeX-parse-self t TeX-master nil)
-    (setq TeX-view-program-selection
-          (if (fboundp 'pdf-view-mode) '((output-pdf "PDF Tools")) '(("System PDF Viewer"))))
-    (when (fboundp 'pdf-view-mode) (add-to-list 'TeX-view-program-list '("PDF Tools" TeX-pdf-tools-sync-view)))
-    (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
-    (add-hook 'LaTeX-mode-hook 'my-prog-mode-common-hook) ; General + Flycheck
-    (add-hook 'LaTeX-mode-hook 'eglot-ensure) ; LSP
-    (add-hook 'LaTeX-mode-hook (lambda () (setq-local indent-tabs-mode nil tab-width 2))))
+
 #+end_src
 
 * Helper Functions
