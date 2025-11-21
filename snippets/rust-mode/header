@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: header (Rust file header)
+# key: header
+# --
+//! 
+//! ${1:File Description: A brief one-line summary}
+//! 
+//! ${2:Author: Your Name <your.email@example.com>}
+//! ${3:Date: $(shell date +'%Y-%m-%d')}
+//! 
+//! ${4:Copyright/License information (e.g., Copyright (c) 2025 Your Name)}
+
+
+$0

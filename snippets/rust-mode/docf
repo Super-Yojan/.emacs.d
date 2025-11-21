@@ -1,0 +1,30 @@
+# -*- mode: snippet -*-
+# name: docf (Rust function documentation)
+# key: docf
+# --
+/// ${1:One-line summary ending with a period.}
+///
+/// ${2:More detailed description of the function...}
+///
+/// # Arguments
+///
+/// * `${3:arg_name}` - ${4:Description of the argument.}
+///
+/// # Returns
+///
+/// ${5:Description of the return value.}
+///
+/// # Examples
+///
+/// ```
+/// ${6:let result = ...}
+/// ```
+///
+/// # Panics
+///
+/// ${7:Describe conditions that cause a panic.}
+///
+/// # Safety
+///
+/// ${8:If unsafe, explain the invariants the caller must uphold.}
+$0
