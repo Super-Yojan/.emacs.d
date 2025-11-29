@@ -1,43 +1,66 @@
-;;; human-aug-theme.el --- Human Augmentation Dark Theme
+;;; human-aug-theme.el --- Human Augmentation Dark Theme (GitHub Edition)
 
 (deftheme human-aug
-  "A Dark Mode theme for Human Augmentation (Midnight Blue variant).")
+  "A GitHub-inspired Dark Mode theme for Human Augmentation.")
 
 (let ((class '((class color) (min-colors 89)))
-      ;; UPDATED: Background is now Slate 900 (#0f172a) for lighter blue feel
-      (bg      "#0f172a")  
-      (bg-alt  "#1e293b")  ; Slate 800
-      (bg-hl   "#334155")  ; Slate 700
-      (fg      "#e2e8f0")  ; Slate 200
-      (fg-dim  "#94a3b8")  ; Slate 400
-      (comment "#64748b")  ; Slate 500
+      ;; GITHUB DARK PALETTE
+      (bg      "#0d1117")  ; Canvas Main
+      (bg-alt  "#161b22")  ; Canvas Subtler (Blocks/Modeline)
+      (bg-hl   "#264f78")  ; Selection Blue
+      (border  "#30363d")  ; UI Borders
       
-      ;; Accents
-      (cyan    "#a3d5ff")  ; Engineer Blue
-      (purple  "#c4a6e0")  ; Artist Purple
-      (yellow  "#fbfda6")  ; Athlete Yellow
-      (red     "#fda4af")  
-      (green   "#86efac"))
+      (fg      "#c9d1d9")  ; FG Default
+      (fg-dim  "#8b949e")  ; FG Muted (Comments/Docstrings)
+      
+      ;; SYNTAX ACCENTS
+      (keyword "#ff7b72")  ; Red/Pink (The classic GitHub keyword)
+      (func    "#d2a8ff")  ; Purple (Functions)
+      (string  "#a5d6ff")  ; Light Blue (Strings)
+      (const   "#79c0ff")  ; Cyan-Blue (Constants)
+      (var     "#c9d1d9")  ; Default FG (Variables usually plain in GH)
+      (type    "#ff7b72")  ; Pink (Types)
+      (warning "#d29922")  ; Yellow/Orange
+      (success "#3fb950")) ; Green
 
   (custom-theme-set-faces
    'human-aug
    `(default ((t (:foreground ,fg :background ,bg))))
-   `(cursor ((t (:background ,cyan))))
+   `(cursor ((t (:background ,fg))))
    `(region ((t (:background ,bg-hl :extend t))))
-   `(fringe ((t (:background ,bg :foreground ,comment))))
-   `(minibuffer-prompt ((t (:foreground ,cyan :weight bold))))
-   `(mode-line ((t (:background ,bg-alt :foreground ,cyan :box (:line-width 1 :color ,bg-alt)))))
-   `(font-lock-comment-face ((t (:foreground ,comment :slant italic))))
-   `(font-lock-string-face ((t (:foreground ,yellow))))
-   `(font-lock-keyword-face ((t (:foreground ,cyan :weight bold))))
-   `(font-lock-function-name-face ((t (:foreground ,purple :weight bold))))
-   `(font-lock-variable-name-face ((t (:foreground ,fg))))
-   `(font-lock-type-face ((t (:foreground ,cyan))))
-   `(font-lock-constant-face ((t (:foreground ,purple))))
-   `(org-level-1 ((t (:foreground ,cyan :height 1.2 :weight bold))))
-   `(org-level-2 ((t (:foreground ,purple :height 1.1 :weight bold))))
-   `(org-level-3 ((t (:foreground ,yellow :weight bold))))
-   `(org-block ((t (:background ,bg-alt))))
+   `(fringe ((t (:background ,bg :foreground ,border))))
+   `(vertical-border ((t (:foreground ,border))))
+   
+   ;; UI ELEMENTS: Mimic GitHub's bordered containers
+   `(minibuffer-prompt ((t (:foreground ,const :weight bold))))
+   `(mode-line ((t (:background ,bg-alt :foreground ,fg :box (:line-width 1 :color ,border)))))
+   `(mode-line-inactive ((t (:background ,bg :foreground ,fg-dim :box (:line-width 1 :color ,border)))))
+   `(line-number ((t (:foreground ,fg-dim :background ,bg))))
+   `(line-number-current-line ((t (:foreground ,fg :background ,bg-alt))))
+
+   ;; SYNTAX HIGHLIGHTING
+   `(font-lock-comment-face ((t (:foreground ,fg-dim))))
+   `(font-lock-doc-face ((t (:foreground ,fg-dim))))
+   `(font-lock-string-face ((t (:foreground ,string))))
+   `(font-lock-keyword-face ((t (:foreground ,keyword :weight bold))))
+   `(font-lock-function-name-face ((t (:foreground ,func :weight bold))))
+   `(font-lock-variable-name-face ((t (:foreground ,var))))
+   `(font-lock-type-face ((t (:foreground ,type))))
+   `(font-lock-constant-face ((t (:foreground ,const))))
+   `(font-lock-warning-face ((t (:foreground ,warning :weight bold))))
+
+   ;; ORG MODE: Clean, flat, with distinct header colors
+   `(org-level-1 ((t (:foreground ,fg :weight bold :height 1.0))))
+   `(org-level-2 ((t (:foreground ,func :weight bold :height 1.0))))
+   `(org-level-3 ((t (:foreground ,const :weight bold :height 1.0))))
+   `(org-level-4 ((t (:foreground ,fg-dim :weight bold :height 1.0))))
+   `(org-document-title ((t (:foreground ,fg :weight bold :height 1.2))))
+   
+   ;; Code blocks that look like embedded Gists
+   `(org-code ((t (:foreground ,string :background ,bg-alt))))
+   `(org-block ((t (:background ,bg-alt :foreground ,fg))))
+   `(org-block-begin-line ((t (:foreground ,fg-dim :background ,bg-alt))))
+   `(org-block-end-line ((t (:foreground ,fg-dim :background ,bg-alt))))
    ))
 
 (when (and (boundp 'custom-theme-load-path) load-file-name)

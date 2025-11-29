@@ -1,71 +1,3 @@
-#+TITLE: Minimal Emacs Configuration (Emacs 30 Compatible)
-#+AUTHOR: Yojan Gautam
-#+EMAIL: gautamyojan0@gmail.com
-#+OPTIONS: num:nil toc:nil
-#+PROPERTY: header-args:emacs-lisp :tangle init.el
-
-* Introduction
-A minimal, focused Emacs configuration using **built-in org-mode** for maximum stability.
-Compatible with Emacs 30.
-
-** Setup Instructions
-1. Save this file as =~/.emacs.d/init.org=
-2. Run =M-x org-babel-tangle=
-3. Restart Emacs
-
-* Early Initialization
-#+begin_src emacs-lisp :tangle early-init.el
-;; -*- lexical-binding: t; -*-
-;; early-init.el for Emacs 30
-
-;; ============================================================
-;; CRITICAL: Fix seq-empty-p for Emacs 30 + Evil compatibility
-;; Must be done BEFORE anything else loads
-;; ============================================================
-(require 'cl-lib)
-(require 'seq)
-
-;; Add method for symbol type (Evil passes 'normal, 'insert, etc.)
-(cl-defmethod seq-empty-p ((_ symbol)) nil)
-
-;; ============================================================
-;; Standard early-init settings
-;; ============================================================
-
-;; Prevent package.el from loading (we use straight.el)
-(setq package-enable-at-startup nil)
-
-;; Native compilation settings
-(when (featurep 'native-compile)
-  (setq native-comp-async-report-warnings-errors nil)
-  (setq native-comp-deferred-compilation t)
-  (setq native-compile-prune-cache t))
-
-;; Garbage Collection
-(setq gc-cons-threshold most-positive-fixnum)
-(add-hook 'emacs-startup-hook
-          (lambda () (setq gc-cons-threshold (* 20 1024 1024))))
-
-;; Disable UI early
-(push '(menu-bar-lines . 0) default-frame-alist)
-(push '(tool-bar-lines . 0) default-frame-alist)
-(push '(vertical-scroll-bars) default-frame-alist)
-;; Enable the transparent title bar
-(add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-
-;; Set the appearance to dark (so the text is white)
-(add-to-list 'default-frame-alist '(ns-appearance . dark))
-
-(setq inhibit-startup-message t
-      inhibit-splash-screen t
-      initial-scratch-message nil)
-
-;; Prevent glimpse of un-styled Emacs
-(setq frame-inhibit-implied-resize t)
-#+end_src
-
-* Core Setup
-#+begin_src emacs-lisp
 ;; -*- lexical-binding: t -*-
 
 ;; ============================================================
@@ -145,19 +77,13 @@ Compatible with Emacs 30.
   :if (memq window-system '(mac ns x))
   :config
   (exec-path-from-shell-initialize))
-#+end_src
 
-** Reload Function
-#+begin_src emacs-lisp
 (defun my-reload-init-file ()
   "Reloads the user's Emacs initialization file."
   (interactive)
   (load-file user-init-file)
   (message "Emacs init file reloaded!"))
-#+end_src
 
-* UI Enhancements
-#+begin_src emacs-lisp
 ;; Set font with error handling
 (when (display-graphic-p)
   (condition-case nil
@@ -324,19 +250,13 @@ Compatible with Emacs 30.
       (writeroom-mode 1)
       (display-line-numbers-mode -1)
       (when (fboundp 'doom-modeline-mode) (doom-modeline-mode -1)))))
-#+end_src
 
-** Mode line
-#+begin_src emacs-lisp
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
   :config
   (setq doom-modeline-height 25
         doom-modeline-bar-width 3))
-#+end_src
 
-* Evil Mode & Keybindings
-#+begin_src emacs-lisp
 ;; Which-key first (needed by general)
 (use-package which-key
   :demand t
@@ -545,10 +465,7 @@ Compatible with Emacs 30.
    "n n" '(denote-open-or-create :wk "Denote")
    "n l" '(denote-link :wk "Denote link")
    "n L" '(denote-add-links :wk "Denote add links")))
-#+end_src
 
-* Terminal
-#+begin_src emacs-lisp
 (use-package vterm
   :commands vterm
   :config
@@ -561,10 +478,7 @@ Compatible with Emacs 30.
                (display-buffer-at-bottom)
                (window-height . 0.3)
                (dedicated . t)))
-#+end_src
 
-* Completion & Development
-#+begin_src emacs-lisp
 (use-package csv-mode
   :mode "\\.csv\\'")
 
@@ -679,10 +593,7 @@ Compatible with Emacs 30.
 
 (use-package treemacs-projectile
   :after (treemacs projectile))
-#+end_src
 
-* Programming Languages
-#+begin_src emacs-lisp
 ;; Prettier Formatting (Async - won't freeze Emacs)
 (use-package apheleia
   :hook (prog-mode . apheleia-mode))
@@ -778,10 +689,6 @@ Compatible with Emacs 30.
         rustic-analyzer-command '("rust-analyzer"))
   ;; Force rustic to use the native tree-sitter mode if available
   (setq rustic-mode-use-ts-mode t))
-#+end_src
-
-** Copilot
-#+begin_src emacs-lisp
 
 (use-package copilot
   :straight (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
@@ -792,9 +699,6 @@ Compatible with Emacs 30.
 (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
 (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
 
-#+end_src
-* Org Mode
-#+begin_src emacs-lisp
 ;; Ensure nerd-icons for themes
 (use-package nerd-icons
   :if (display-graphic-p))
@@ -885,10 +789,7 @@ Compatible with Emacs 30.
   :config
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
-#+end_src
 
-** Denote Note Taking
-#+begin_src emacs-lisp
 (use-package denote
   :commands (denote denote-link denote-backlinks)
   :hook (dired-mode . denote-dired-mode)
@@ -900,17 +801,10 @@ Compatible with Emacs 30.
   :config
   (setq denote-directory (expand-file-name "~/Documents/notes/"))
   (denote-rename-buffer-mode 1))
-#+end_src
 
-** Ox-hugo
-#+begin_src emacs-lisp
 (use-package ox-hugo
   :after ox)
-#+end_src
 
-** Ox-latex
-
-#+begin_src emacs-lisp
 (with-eval-after-load 'ox-latex
   ;; Use minted for code blocks
   (setq org-latex-listings 'minted)
@@ -939,10 +833,6 @@ Compatible with Emacs 30.
                  ("\\paragraph{%s}" . "\\paragraph*{%s}")
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 
-
-#+end_src
-** Jupyter Notebook
-#+begin_src emacs-lisp
 (use-package jupyter
   :defer t
   :config
@@ -953,10 +843,7 @@ Compatible with Emacs 30.
      'org-babel-load-languages
      (append org-babel-load-languages
              '((jupyter . t))))))
-#+end_src
 
-** LaTeX Preview in Any Buffer
-#+begin_src emacs-lisp
 ;; texfrag - Inline LaTeX preview for any buffer
 (use-package texfrag
   :commands (texfrag-mode texfrag-document texfrag-clear-document)
@@ -991,13 +878,6 @@ Compatible with Emacs 30.
 ;; Global keybinding for LaTeX preview
 (global-set-key (kbd "C-c l p") 'my-latex-preview-toggle)
 
-
-
-#+end_src
-
-
-** Auctex
-#+begin_src emacs-lisp
 (use-package auctex
   :ensure t
   :defer t
@@ -1047,9 +927,6 @@ Compatible with Emacs 30.
                   font-latex-script-char-face))
     (add-to-list 'mixed-pitch-fixed-pitch-faces face)))
 
-#+end_src
-** Bib Latex
-#+begin_src emacs-lisp
 (use-package citar
   :custom
   (citar-bibliography '("~/Documents/Research Projects/bib/references.bib"))
@@ -1057,9 +934,6 @@ Compatible with Emacs 30.
   (LaTeX-mode . citar-capf-setup)
   (org-mode . citar-capf-setup))
 
-#+end_src
-* PDF Support
-#+begin_src emacs-lisp
 (use-package pdf-tools
   :mode ("\\.pdf\\'" . pdf-view-mode)
   :magic ("%PDF" . pdf-view-mode)
@@ -1075,10 +949,7 @@ Compatible with Emacs 30.
               (setq pdf-view-midnight-colors
                     `(,(face-foreground 'default) . ,(face-background 'default)))
               (pdf-view-midnight-minor-mode))))
-#+end_src
 
-* Performance Optimization
-#+begin_src emacs-lisp
 ;; Increase the amount of data Emacs reads from processes
 (setq read-process-output-max (* 1024 1024)) ; 1MB
 
@@ -1091,4 +962,3 @@ Compatible with Emacs 30.
 (setq projectile-enable-caching t)
 
 (message "Init loaded successfully!")
-#+end_src
