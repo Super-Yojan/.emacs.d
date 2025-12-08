@@ -996,6 +996,15 @@ Compatible with Emacs 30.
 #+end_src
 
 
+** slides
+#+begin_src emacs-lisp
+(use-package org-tree-slide
+  :straight t)
+
+(use-package ox-reveal
+  :straight t)
+
+#+end_src
 ** Auctex
 #+begin_src emacs-lisp
 (use-package auctex

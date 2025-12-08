@@ -878,6 +878,12 @@
 ;; Global keybinding for LaTeX preview
 (global-set-key (kbd "C-c l p") 'my-latex-preview-toggle)
 
+(use-package org-tree-slide
+  :straight t)
+
+(use-package ox-reveal
+  :straight t)
+
 (use-package auctex
   :ensure t
   :defer t
