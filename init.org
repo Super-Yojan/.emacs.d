@@ -1,47 +1,29 @@
-#+TITLE: Minimal Emacs Configuration (Emacs 30 Compatible)
+#+TITLE: Minimal Emacs Configuration (Emacs 30)
 #+AUTHOR: Yojan Gautam
 #+EMAIL: gautamyojan0@gmail.com
 #+OPTIONS: num:nil toc:nil
 #+PROPERTY: header-args:emacs-lisp :tangle init.el
 
-* Introduction
-A minimal, focused Emacs configuration using **built-in org-mode** for maximum stability.
-Compatible with Emacs 30.
-
-** Setup Instructions
-1. Save this file as =~/.emacs.d/init.org=
-2. Run =M-x org-babel-tangle=
-3. Restart Emacs
-
 * Early Initialization
+
 #+begin_src emacs-lisp :tangle early-init.el
 ;; -*- lexical-binding: t; -*-
-;; early-init.el for Emacs 30
 
-;; ============================================================
-;; CRITICAL: Fix seq-empty-p for Emacs 30 + Evil compatibility
-;; Must be done BEFORE anything else loads
-;; ============================================================
+;; Fix seq-empty-p for Emacs 30 + Evil compatibility
 (require 'cl-lib)
 (require 'seq)
-
-;; Add method for symbol type (Evil passes 'normal, 'insert, etc.)
 (cl-defmethod seq-empty-p ((_ symbol)) nil)
 
-;; ============================================================
-;; Standard early-init settings
-;; ============================================================
-
-;; Prevent package.el from loading (we use straight.el)
+;; Prevent package.el (we use straight.el)
 (setq package-enable-at-startup nil)
 
-;; Native compilation settings
+;; Native compilation
 (when (featurep 'native-compile)
-  (setq native-comp-async-report-warnings-errors nil)
-  (setq native-comp-deferred-compilation t)
-  (setq native-compile-prune-cache t))
+  (setq native-comp-async-report-warnings-errors nil
+        native-comp-deferred-compilation t
+        native-compile-prune-cache t))
 
-;; Garbage Collection
+;; GC: high during init, reasonable after
 (setq gc-cons-threshold most-positive-fixnum)
 (add-hook 'emacs-startup-hook
           (lambda () (setq gc-cons-threshold (* 20 1024 1024))))
@@ -50,35 +32,26 @@ Compatible with Emacs 30.
 (push '(menu-bar-lines . 0) default-frame-alist)
 (push '(tool-bar-lines . 0) default-frame-alist)
 (push '(vertical-scroll-bars) default-frame-alist)
-;; Enable the transparent title bar
 (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-
-;; Set the appearance to dark (so the text is white)
 (add-to-list 'default-frame-alist '(ns-appearance . dark))
 
 (setq inhibit-startup-message t
       inhibit-splash-screen t
-      initial-scratch-message nil)
-
-;; Prevent glimpse of un-styled Emacs
-(setq frame-inhibit-implied-resize t)
+      initial-scratch-message nil
+      frame-inhibit-implied-resize t)
 #+end_src
 
 * Core Setup
 #+begin_src emacs-lisp
 ;; -*- lexical-binding: t -*-
 
-;; ============================================================
-;; Ensure seq-empty-p fix (belt and suspenders for Emacs 30)
-;; ============================================================
+;; Belt-and-suspenders seq fix
 (require 'cl-lib)
 (require 'seq)
 (unless (ignore-errors (seq-empty-p 'test-symbol))
   (cl-defmethod seq-empty-p ((_ symbol)) nil))
 
-;; ============================================================
-;; Bootstrap straight.el
-;; ============================================================
+;; ── Bootstrap straight.el ──
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -92,141 +65,118 @@ Compatible with Emacs 30.
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-;; Use-package with straight
 (straight-use-package 'use-package)
 (setq straight-use-package-by-default t
-      use-package-always-ensure t)
-
-;; Prevent straight from managing built-in packages INCLUDING org and seq
-(setq straight-built-in-pseudo-packages 
+      use-package-always-ensure t
+      straight-built-in-pseudo-packages
       '(emacs nadvice python eldoc project org seq cl-lib))
 
-;; Use built-in org-mode (stable and always works)
 (require 'org)
 (require 'org-tempo)
 
-;; Basic settings
-(setq-default
- ring-bell-function 'ignore
- column-number-mode t
- indent-tabs-mode nil
- tab-width 4
- fill-column 80)
-
+;; ── Defaults ──
+(setq-default ring-bell-function 'ignore
+              column-number-mode t
+              indent-tabs-mode nil
+              tab-width 4
+              fill-column 80)
 (show-paren-mode 1)
 (delete-selection-mode 1)
 (global-auto-revert-mode 1)
+(savehist-mode 1)
 
-;; Recent files tracking
+;; Recent files
 (recentf-mode 1)
 (setq recentf-max-saved-items 100
-      recentf-max-menu-items 15
       recentf-auto-cleanup 'never)
 (run-at-time nil (* 5 60) 'recentf-save-list)
 
-;; Backup settings with error handling
+;; Backups & auto-save
 (let ((backup-dir (expand-file-name ".cache/backups" user-emacs-directory))
       (auto-save-dir (expand-file-name ".cache/auto-save" user-emacs-directory)))
-  (condition-case nil
-      (progn
-        (make-directory backup-dir t)
-        (make-directory auto-save-dir t)
-        (setq backup-directory-alist `(("." . ,backup-dir))
-              auto-save-file-name-transforms `((".*" ,auto-save-dir t))
-              backup-by-copying t
-              delete-old-versions t
-              kept-new-versions 6
-              kept-old-versions 2
-              version-control t
-              create-lockfiles nil))
-    (error nil)))
+  (make-directory backup-dir t)
+  (make-directory auto-save-dir t)
+  (setq backup-directory-alist `(("." . ,backup-dir))
+        auto-save-file-name-transforms `((".*" ,auto-save-dir t))
+        backup-by-copying t
+        delete-old-versions t
+        kept-new-versions 6
+        kept-old-versions 2
+        version-control t
+        create-lockfiles nil))
 
+;; PATH from shell (macOS)
 (use-package exec-path-from-shell
   :if (memq window-system '(mac ns x))
-  :config
-  (exec-path-from-shell-initialize))
-#+end_src
+  :config (exec-path-from-shell-initialize))
 
-** Reload Function
-#+begin_src emacs-lisp
+;; Performance
+(setq read-process-output-max (* 1024 1024))
+
 (defun my-reload-init-file ()
-  "Reloads the user's Emacs initialization file."
+  "Reload init file."
   (interactive)
   (load-file user-init-file)
   (message "Emacs init file reloaded!"))
 #+end_src
 
-* UI Enhancements
+* UI
 #+begin_src emacs-lisp
-;; Set font with error handling
+;; ── Font ──
 (when (display-graphic-p)
-  (condition-case nil
-      (set-face-attribute 'default nil :font "FiraCode Nerd Font Mono-18")
-    (error (message "FiraCode font not found"))))
-
+  (ignore-errors
+    (set-face-attribute 'default nil :font "Iosevka Nerd Font Mono-18")))
 
 (use-package mixed-pitch
-  :ensure t
-  :hook (org-mode . mixed-pitch-mode)
+  :hook ((org-mode LaTeX-mode latex-mode) . mixed-pitch-mode)
   :config
-  ;; Change "Latin Modern Roman" to "ET Book" or "Times New Roman" if you prefer
-  (set-face-attribute 'variable-pitch nil :family "Georgia"  :height 130)
-  ;; Keep your code blocks monospaced!
-  (set-face-attribute 'fixed-pitch nil :family "FiraCode Nerd Font Mono" :height 130))
+  (set-face-attribute 'variable-pitch nil :family "Georgia" :height 130)
+  (set-face-attribute 'fixed-pitch nil :family "Iosevka Nerd Font Mono" :height 130)
+  (dolist (face '(font-latex-math-face font-latex-sedate-face
+                  font-latex-warning-face font-latex-verbatim-face
+                  font-latex-script-char-face))
+    (add-to-list 'mixed-pitch-fixed-pitch-faces face)))
 
-(use-package visual-fill-column
-  :defer t)
-
-
+;; ── Theme ──
 (defun my/sync-theme-with-system (appearance)
-  "Switch timu-macos flavour based on system APPEARANCE (light or dark)."
-  ;; 1. Disable active themes to prevent conflict/overlap
+  "Switch timu-macos flavour based on system APPEARANCE."
   (mapc #'disable-theme custom-enabled-themes)
-  
-  ;; 2. Set the flavour variable based on the appearance argument
-  ;; Note: appearance is provided as the symbol 'light or 'dark
-  (customize-set-variable 'timu-macos-flavour 
+  (customize-set-variable 'timu-macos-flavour
                           (if (eq appearance 'dark) "dark" "light"))
-  
-  ;; 3. Reload the theme to apply the new flavour
   (load-theme 'timu-macos t))
 
-;; 4. Add the hook (only works on macOS Emacs ports capable of detecting system theme)
 (when (boundp 'ns-system-appearance-change-functions)
   (add-hook 'ns-system-appearance-change-functions #'my/sync-theme-with-system))
 
-;; Load theme with error handling
 (use-package timu-macos-theme
-  :ensure t
-  :config
-  (load-theme 'timu-macos t))
+  :config (load-theme 'timu-macos t))
 
-(customize-set-variable 'timu-macos-scale-org-document-title 1.2)
-(customize-set-variable 'timu-macos-scale-org-document-info 1.2)
-(customize-set-variable 'timu-macos-scale-org-level-1 1.2)
-(customize-set-variable 'timu-macos-scale-org-level-2 1.2)
-(customize-set-variable 'timu-macos-scale-org-level-3 1.1)
+(dolist (pair '((timu-macos-scale-org-document-title . 1.2)
+                (timu-macos-scale-org-document-info . 1.2)
+                (timu-macos-scale-org-level-1 . 1.2)
+                (timu-macos-scale-org-level-2 . 1.2)
+                (timu-macos-scale-org-level-3 . 1.1)))
+  (customize-set-variable (car pair) (cdr pair)))
 
-;; Undo-tree configuration with history directory
+;; ── Modeline ──
+(use-package doom-modeline
+  :init (doom-modeline-mode 1)
+  :config (setq doom-modeline-height 25 doom-modeline-bar-width 3))
+
+;; ── Undo-tree ──
 (use-package undo-tree
   :demand t
   :config
   (let ((undo-dir (concat user-emacs-directory "undo-tree-hist/")))
-    (unless (file-exists-p undo-dir)
-      (make-directory undo-dir t))
+    (make-directory undo-dir t)
     (setq undo-tree-history-directory-alist `(("." . ,undo-dir))))
   (global-undo-tree-mode))
 
-;; Icons for dashboard (optional, only if display supports it)
-(use-package all-the-icons
-  :if (display-graphic-p)
-  :defer t)
+;; ── Icons ──
+(use-package all-the-icons :if (display-graphic-p) :defer t)
+(use-package nerd-icons :if (display-graphic-p))
 
-(use-package org-auto-tangle
-  :defer t
-  :hook (org-mode . org-auto-tangle-mode))
-
-;; Dashboard for quick access
+;; ── Dashboard ──
 (use-package dashboard
   :demand t
   :config
@@ -234,45 +184,37 @@ Compatible with Emacs 30.
         dashboard-center-content t
         dashboard-set-heading-icons t
         dashboard-set-file-icons t
-        dashboard-items '((recents  . 5)
-                          (projects . 10)
-                          (bookmarks . 5))
+        dashboard-items '((recents . 5) (projects . 10) (bookmarks . 5))
         dashboard-set-init-info t
         dashboard-set-footer nil)
   (dashboard-setup-startup-hook)
 
   (defun dashboard-goto-projects ()
-    "Jump to projects section in dashboard."
     (interactive)
     (dashboard-refresh-buffer)
     (goto-char (point-min))
     (search-forward "Projects:" nil t))
-  
   (defun dashboard-goto-recent-files ()
-    "Jump to recent files section in dashboard."
     (interactive)
     (dashboard-refresh-buffer)
     (goto-char (point-min))
     (search-forward "Recent Files:" nil t)))
 
-;; Line numbers
+;; ── Line numbers ──
 (setq display-line-numbers-type 'relative)
 (global-display-line-numbers-mode t)
 (dolist (mode '(org-mode-hook vterm-mode-hook term-mode-hook shell-mode-hook
-                              pdf-view-mode-hook eshell-mode-hook
-                              compilation-mode-hook dashboard-mode-hook))
+                pdf-view-mode-hook eshell-mode-hook compilation-mode-hook
+                dashboard-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode -1))))
 
-;; Fullscreen support
+;; ── Zen modes ──
 (defun toggle-fullscreen ()
-  "Toggle fullscreen mode."
   (interactive)
   (set-frame-parameter nil 'fullscreen
                        (if (frame-parameter nil 'fullscreen) nil 'fullboth)))
-
 (global-set-key (kbd "<f11>") 'toggle-fullscreen)
 
-;; Zen Mode - Distraction-free writing
 (use-package writeroom-mode
   :commands writeroom-mode
   :config
@@ -283,68 +225,38 @@ Compatible with Emacs 30.
         writeroom-maximize-window t
         writeroom-extra-line-spacing 0.2))
 
-;;; 2. SET THE MARGINS (The "Page" Feel)
 (use-package olivetti
-  :ensure t
   :config
-  (setq olivetti-body-width 100)  ;; Width of the "paper"
-  (setq olivetti-style 'fancy))   ;; Smooth margins
+  (setq olivetti-body-width 100 olivetti-style 'fancy))
 
+(use-package visual-fill-column :defer t)
 
-;; Function to toggle zen mode with multiple options
 (defun my-zen-mode ()
-  "Toggle zen mode for distraction-free writing."
   (interactive)
-  (if (bound-and-true-p writeroom-mode)
-      (writeroom-mode -1)
-    (writeroom-mode 1)))
+  (if (bound-and-true-p writeroom-mode) (writeroom-mode -1) (writeroom-mode 1)))
 
-;; Alternative lightweight zen mode
 (defun my-zen-mode-light ()
-  "Toggle lightweight zen mode with olivetti."
   (interactive)
   (if (bound-and-true-p olivetti-mode)
-      (progn
-        (olivetti-mode -1)
-        (display-line-numbers-mode 1))
-    (progn
-      (olivetti-mode 1)
-      (display-line-numbers-mode -1))))
+      (progn (olivetti-mode -1) (display-line-numbers-mode 1))
+    (progn (olivetti-mode 1) (display-line-numbers-mode -1))))
 
-;; Ultra zen mode - everything hidden
 (defun my-zen-mode-ultra ()
-  "Toggle ultra zen mode - hide everything."
   (interactive)
   (if (bound-and-true-p writeroom-mode)
-      (progn
-        (writeroom-mode -1)
-        (display-line-numbers-mode 1)
-        (when (fboundp 'doom-modeline-mode) (doom-modeline-mode 1)))
-    (progn
-      (writeroom-mode 1)
-      (display-line-numbers-mode -1)
-      (when (fboundp 'doom-modeline-mode) (doom-modeline-mode -1)))))
-#+end_src
-
-** Mode line
-#+begin_src emacs-lisp
-(use-package doom-modeline
-  :init (doom-modeline-mode 1)
-  :config
-  (setq doom-modeline-height 25
-        doom-modeline-bar-width 3))
+      (progn (writeroom-mode -1) (display-line-numbers-mode 1)
+             (when (fboundp 'doom-modeline-mode) (doom-modeline-mode 1)))
+    (progn (writeroom-mode 1) (display-line-numbers-mode -1)
+           (when (fboundp 'doom-modeline-mode) (doom-modeline-mode -1)))))
 #+end_src
 
 * Evil Mode & Keybindings
 #+begin_src emacs-lisp
-;; Which-key first (needed by general)
 (use-package which-key
   :demand t
-  :config
-  (which-key-mode)
-  (setq which-key-idle-delay 0.3))
+  :config (which-key-mode) (setq which-key-idle-delay 0.3))
 
-;; Ivy - completion framework
+;; ── Ivy / Counsel / Swiper ──
 (use-package ivy
   :demand t
   :config
@@ -357,19 +269,21 @@ Compatible with Emacs 30.
         enable-recursive-minibuffers t
         ivy-initial-inputs-alist nil))
 
-;; Counsel
 (use-package counsel
   :after ivy
-  :config
-  (counsel-mode 1))
+  :config (counsel-mode 1))
 
-;; Swiper
 (use-package swiper
   :after ivy
-  :bind (("C-s" . swiper)
-         ("C-r" . swiper-backward)))
+  :bind (("C-s" . swiper) ("C-r" . swiper-backward)))
 
-;; Evil mode configuration
+(use-package ivy-rich
+  :after ivy
+  :config
+  (ivy-rich-mode 1)
+  (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line))
+
+;; ── Evil ──
 (use-package evil
   :demand t
   :init
@@ -387,40 +301,28 @@ Compatible with Emacs 30.
 
 (use-package evil-collection
   :after evil
-  :config
-  (evil-collection-init))
+  :config (evil-collection-init))
 
-;; Projectile (needed before counsel-projectile)
+;; ── Projectile ──
 (use-package projectile
   :demand t
   :config
   (projectile-mode 1)
-  (setq projectile-completion-system 'ivy
-        projectile-enable-caching t
-        projectile-indexing-method 'alien
-        projectile-sort-order 'recentf
-        projectile-project-search-path '("~/git/" "~/work/" "~/Research/")
-        projectile-known-projects-file (expand-file-name ".cache/projectile-bookmarks.eld" user-emacs-directory)
-        projectile-cache-file (expand-file-name ".cache/projectile.cache" user-emacs-directory))
-  
   (let ((cache-dir (expand-file-name ".cache" user-emacs-directory)))
-    (unless (file-directory-p cache-dir)
-      (make-directory cache-dir t))))
+    (make-directory cache-dir t)
+    (setq projectile-completion-system 'ivy
+          projectile-enable-caching t
+          projectile-indexing-method 'alien
+          projectile-sort-order 'recentf
+          projectile-project-search-path '("~/git/" "~/work/" "~/Research/")
+          projectile-known-projects-file (expand-file-name ".cache/projectile-bookmarks.eld" user-emacs-directory)
+          projectile-cache-file (expand-file-name ".cache/projectile.cache" user-emacs-directory))))
 
-;; Counsel-projectile
 (use-package counsel-projectile
   :after (counsel projectile)
-  :config
-  (counsel-projectile-mode 1))
+  :config (counsel-projectile-mode 1))
 
-;; Ivy-rich
-(use-package ivy-rich
-  :after ivy
-  :config
-  (ivy-rich-mode 1)
-  (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line))
-
-;; General keybindings
+;; ── General (all keybindings) ──
 (use-package general
   :demand t
   :config
@@ -510,10 +412,10 @@ Compatible with Emacs 30.
 
    ;; Typst
    "m c" '(my-typst-compile-and-view :wk "Compile & view Typst")
-   "m w" '(my-typst-watch-toggle :wk "Toggle watch mode (live preview)")
+   "m w" '(my-typst-watch-toggle :wk "Toggle watch mode")
    "m v" '(my-typst-view-pdf :wk "View PDF")
 
-   ;; LaTeX Preview (any buffer)
+   ;; LaTeX Preview
    "l" '(:ignore t :wk "LaTeX")
    "l p" '(my-latex-preview-toggle :wk "Preview LaTeX")
    "l r" '(texfrag-document :wk "Render all (texfrag)")
@@ -530,10 +432,10 @@ Compatible with Emacs 30.
 
    ;; View & Zen Mode
    "v" '(:ignore t :wk "View/Zen")
-   "v f" '(toggle-fullscreen :wk "Fullscreen (F11)")
-   "v z" '(my-zen-mode :wk "Zen mode (writeroom)")
-   "v l" '(my-zen-mode-light :wk "Zen mode light (olivetti)")
-   "v u" '(my-zen-mode-ultra :wk "Ultra zen (hide all)")
+   "v f" '(toggle-fullscreen :wk "Fullscreen")
+   "v z" '(my-zen-mode :wk "Zen mode")
+   "v l" '(my-zen-mode-light :wk "Zen light")
+   "v u" '(my-zen-mode-ultra :wk "Ultra zen")
    "v n" '(display-line-numbers-mode :wk "Toggle line numbers")
 
    ;; Other
@@ -551,30 +453,17 @@ Compatible with Emacs 30.
 #+begin_src emacs-lisp
 (use-package vterm
   :commands vterm
-  :config
-  (setq vterm-max-scrollback 10000
-        vterm-buffer-name-string "vterm: %s"))
+  :config (setq vterm-max-scrollback 10000 vterm-buffer-name-string "vterm: %s"))
 
-;; Make vterm open as a popup at the bottom
 (add-to-list 'display-buffer-alist
-             '("\\*vterm\\*"
-               (display-buffer-at-bottom)
-               (window-height . 0.3)
-               (dedicated . t)))
+             '("\\*vterm\\*" (display-buffer-at-bottom) (window-height . 0.3) (dedicated . t)))
 #+end_src
 
 * Completion & Development
 #+begin_src emacs-lisp
-(use-package csv-mode
-  :mode "\\.csv\\'")
+(use-package csv-mode :mode "\\.csv\\'")
 
-;; Persist history
-(use-package savehist
-  :straight (:type built-in)
-  :init
-  (savehist-mode))
-
-;; Company
+;; ── Company ──
 (use-package company
   :hook (after-init . global-company-mode)
   :config
@@ -586,23 +475,16 @@ Compatible with Emacs 30.
               ("C-p" . company-select-previous)
               ("<tab>" . company-complete-common-or-cycle)))
 
-;; Company-box
 (use-package company-box
   :if (display-graphic-p)
   :hook (company-mode . company-box-mode)
-  :config
-  (setq company-box-show-single-candidate t
-        company-box-doc-enable t))
+  :config (setq company-box-show-single-candidate t company-box-doc-enable t))
 
-;; Eldoc-box for nicer documentation display
 (use-package eldoc-box
   :commands eldoc-box-help-at-point
-  :config
-  (setq eldoc-box-max-pixel-width 800
-        eldoc-box-max-pixel-height 600
-        eldoc-box-clear-with-C-g t))
+  :config (setq eldoc-box-max-pixel-width 800 eldoc-box-max-pixel-height 600 eldoc-box-clear-with-C-g t))
 
-;; Yasnippet
+;; ── Snippets ──
 (use-package yasnippet
   :hook (prog-mode . yas-minor-mode)
   :config
@@ -610,463 +492,301 @@ Compatible with Emacs 30.
     (when (file-directory-p snippet-dir)
       (setq yas-snippet-dirs (list snippet-dir))))
   (yas-reload-all))
+(use-package yasnippet-snippets :after yasnippet)
 
-(use-package yasnippet-snippets
-  :after yasnippet)
-
-;; ============================================================
-;; Eglot - Built-in LSP client (simpler and lighter than lsp-mode)
-;; ============================================================
+;; ── Eglot (built-in LSP) ──
 (use-package eglot
   :straight (:type built-in)
-  :hook ((python-mode . eglot-ensure)
-         (python-ts-mode . eglot-ensure)
-         (typescript-mode . eglot-ensure)
-         (typescript-ts-mode . eglot-ensure)
-         (tsx-ts-mode . eglot-ensure)
-         (js-mode . eglot-ensure)
-         (js-ts-mode . eglot-ensure)
-         (c-mode . eglot-ensure)
-         (c++-mode . eglot-ensure)
-         (go-mode . eglot-ensure)
-         (typst-ts-mode . eglot-ensure))
+  :hook ((python-mode python-ts-mode
+          typescript-mode typescript-ts-mode tsx-ts-mode
+          js-mode js-ts-mode c-mode c++-mode go-mode
+          typst-ts-mode) . eglot-ensure)
   :config
-  ;; --- START OF FIX ---
-  ;; Patch: Prevent crash when server returns nil markup (The "char-or-string-p" error)
+  ;; Fix nil markup crash
   (advice-add 'eglot--format-markup :filter-args
-    (lambda (args)
-      ;; If the argument (content) is nil, replace it with an empty string
-      (if (car args) args '(""))))
-  ;; --- END OF FIX ---
-
-  ;; Performance settings
-  (setq eglot-autoshutdown t  ; Shutdown server when last buffer closes
-        eglot-events-buffer-size 0  ; Disable events logging for performance
-        eglot-sync-connect nil  ; Don't block on connection
-        eglot-connect-timeout 60)  ; Longer timeout for slow servers
-
-  ;; Configure servers
-  (add-to-list 'eglot-server-programs
-               '(typst-ts-mode . ("typst-lsp")))
-  (add-to-list 'eglot-server-programs
-               '(rust-mode . ("rust-analyzer")))
-  (add-to-list 'eglot-server-programs
-               '(rustic-mode . ("rust-analyzer")))
-
-  ;; Eldoc settings for Eglot
-  (setq eldoc-echo-area-use-multiline-p nil)
-
-  ;; Improve performance by limiting capabilities
+              (lambda (args) (if (car args) args '(""))))
+  (setq eglot-autoshutdown t
+        eglot-events-buffer-size 0
+        eglot-sync-connect nil
+        eglot-connect-timeout 60
+        eldoc-echo-area-use-multiline-p nil)
+  (add-to-list 'eglot-server-programs '(typst-ts-mode . ("typst-lsp")))
+  (add-to-list 'eglot-server-programs '(rust-mode . ("rust-analyzer")))
+  (add-to-list 'eglot-server-programs '(rustic-mode . ("rust-analyzer")))
   (fset #'jsonrpc--log-event #'ignore))
 
+;; ── Formatting ──
+(use-package apheleia :hook (prog-mode . apheleia-mode))
 
-;; Flycheck
-(use-package flycheck
-  :hook (prog-mode . flycheck-mode))
+;; ── Flycheck ──
+(use-package flycheck :hook (prog-mode . flycheck-mode))
 
-;; Magit
-(use-package magit
-  :commands magit-status)
+;; ── Git ──
+(use-package magit :commands magit-status)
 
-;; Treemacs (optional file explorer)
-(use-package treemacs
-  :defer t
-  :config
-  (setq treemacs-width 30))
-
-(use-package treemacs-evil
-  :after (treemacs evil))
-
-(use-package treemacs-projectile
-  :after (treemacs projectile))
+;; ── Treemacs ──
+(use-package treemacs :defer t :config (setq treemacs-width 30))
+(use-package treemacs-evil :after (treemacs evil))
+(use-package treemacs-projectile :after (treemacs projectile))
 #+end_src
 
 * Programming Languages
 #+begin_src emacs-lisp
-;; Prettier Formatting (Async - won't freeze Emacs)
-(use-package apheleia
-  :hook (prog-mode . apheleia-mode))
-
-;; ============================================================
-;; Native Tree-Sitter (The "Emacs 30 Way")
-;; ============================================================
-
+;; Tree-sitter
 (straight-use-package 'tree-sitter)
 (straight-use-package 'tree-sitter-langs)
-
 (require 'tree-sitter)
 (require 'tree-sitter-langs)
 
-;; Markdown support (often missing by default)
 (use-package markdown-mode
   :mode ("README\\.md\\'" . markdown-mode)
   :init (setq markdown-command "multimarkdown"))
 
-;; ============================================================
-;; Typst
-;; ============================================================
-
-(defvar my-typst-watch-process nil
-  "Process for typst watch mode.")
+;; ── Typst ──
+(defvar my-typst-watch-process nil)
 
 (defun my-typst-compile-and-view ()
-  "Compile current Typst file and open the PDF."
+  "Compile current Typst file and open PDF."
   (interactive)
   (when buffer-file-name
-    (let* ((input-file buffer-file-name)
-           (output-file (concat (file-name-sans-extension input-file) ".pdf")))
-      (save-buffer)
-      (call-process "typst" nil nil nil "compile" input-file)
-      (when (file-exists-p output-file)
-        (if (eq system-type 'darwin)
-            (call-process "open" nil nil nil output-file)
-          (call-process "xdg-open" nil nil nil output-file))))))
+    (save-buffer)
+    (call-process "typst" nil nil nil "compile" buffer-file-name)
+    (let ((pdf (concat (file-name-sans-extension buffer-file-name) ".pdf")))
+      (when (file-exists-p pdf)
+        (call-process (if (eq system-type 'darwin) "open" "xdg-open") nil nil nil pdf)))))
 
 (defun my-typst-watch-toggle ()
-  "Toggle typst watch mode for live preview."
+  "Toggle typst watch mode."
   (interactive)
   (if (and my-typst-watch-process (process-live-p my-typst-watch-process))
-      (progn
-        (kill-process my-typst-watch-process)
-        (setq my-typst-watch-process nil)
-        (message "Typst watch mode stopped"))
+      (progn (kill-process my-typst-watch-process)
+             (setq my-typst-watch-process nil)
+             (message "Typst watch stopped"))
     (when buffer-file-name
       (save-buffer)
       (setq my-typst-watch-process
-            (start-process "typst-watch" "*typst-watch*"
-                           "typst" "watch" "--open" buffer-file-name))
-      (message "Typst watch mode started"))))
+            (start-process "typst-watch" "*typst-watch*" "typst" "watch" "--open" buffer-file-name))
+      (message "Typst watch started"))))
 
 (defun my-typst-view-pdf ()
-  "View the PDF for the current Typst file."
+  "View PDF for current Typst file."
   (interactive)
   (when buffer-file-name
-    (let ((pdf-file (concat (file-name-sans-extension buffer-file-name) ".pdf")))
-      (if (file-exists-p pdf-file)
-          (if (eq system-type 'darwin)
-              (call-process "open" nil nil nil pdf-file)
-            (call-process "xdg-open" nil nil nil pdf-file))
-        (message "PDF file not found. Compile first with SPC m c")))))
+    (let ((pdf (concat (file-name-sans-extension buffer-file-name) ".pdf")))
+      (if (file-exists-p pdf)
+          (call-process (if (eq system-type 'darwin) "open" "xdg-open") nil nil nil pdf)
+        (message "PDF not found. Compile first with SPC m c")))))
 
 (use-package typst-ts-mode
   :straight (:type git :host sourcehut :repo "meow_king/typst-ts-mode")
   :mode "\\.typ\\'"
-  :config
-  (setq typst-ts-mode-watch-options "--open"
-        typst-ts-mode-compile-options ""))
+  :config (setq typst-ts-mode-watch-options "--open" typst-ts-mode-compile-options ""))
 
-;; ============================================================
-;; Python
-;; ============================================================
-(use-package pyvenv
-  :hook (python-ts-mode . pyvenv-mode)) ;; Hook to the TS mode specifically
+;; ── Python ──
+(use-package pyvenv :hook (python-ts-mode . pyvenv-mode))
 
-;; ============================================================
-;; Rust
-;; ============================================================
-
-;; Set the LSP client BEFORE loading rustic
+;; ── Rust ──
 (setq rustic-lsp-client 'eglot)
-
 (use-package rustic
-  :straight t
   :demand t
   :mode ("\\.rs\\'" . rustic-mode)
   :hook (rustic-mode . eglot-ensure)
   :config
   (setq rustic-format-on-save nil
-        rustic-analyzer-command '("rust-analyzer"))
-  ;; Force rustic to use the native tree-sitter mode if available
-  (setq rustic-mode-use-ts-mode t))
+        rustic-analyzer-command '("rust-analyzer")
+        rustic-mode-use-ts-mode t))
+
 #+end_src
 
-** Copilot
+
+** Agent shell
+#+begin_src emacs-lisp
+(use-package agent-shell
+    :straight t
+    :ensure-system-package
+    ;; Add agent installation configs here
+    ((claude . "brew install claude-code")
+     (claude-agent-acp . "npm install -g @zed-industries/claude-agent-acp"))
+
+:config
+  ;; Evil state-specific RET behavior: insert mode = newline, normal mode = send
+  (evil-define-key 'insert agent-shell-mode-map (kbd "RET") #'newline)
+  (evil-define-key 'normal agent-shell-mode-map (kbd "RET") #'comint-send-input)
+
+  ;; Configure *agent-shell-diff* buffers to start in Emacs state
+  (add-hook 'diff-mode-hook
+	    (lambda ()
+	      (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
+		(evil-emacs-state))))
+
+    )
+#+end_src
+
+** Xcode setup
 #+begin_src emacs-lisp
 
-(use-package copilot
-  :straight (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
-  :ensure t)
+(use-package swift-mode
+  :straight t)
 
-(add-hook 'prog-mode-hook 'copilot-mode)
+(use-package swift-development
+  :straight (:type git :host github :repo "konrad1977/swift-development"))
 
-(define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
-(define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
+;; Load the main package
+(require 'swift-development)
+(require 'xcode-project)
+(require 'xcode-build-config)
 
+;; Optional modules
+(require 'ios-simulator)
+(require 'ios-device)
+(require 'swift-refactor)
+(require 'localizeable-mode)
 #+end_src
+
 * Org Mode
 #+begin_src emacs-lisp
-;; Ensure nerd-icons for themes
-(use-package nerd-icons
-  :if (display-graphic-p))
+(use-package htmlize :defer t)
+(use-package org-fragtog :hook (org-mode . org-fragtog-mode))
+(use-package org-auto-tangle :defer t :hook (org-mode . org-auto-tangle-mode))
 
-;; Htmlize for org export
-(use-package htmlize
-  :defer t)
-
-;; Org-fragtog for LaTeX preview
-(use-package org-fragtog
-  :hook (org-mode . org-fragtog-mode))
-
-
-;; Ox-typst for Typst export
 (use-package ox-typst
   :after org
   :config
   (setq org-typst-from-latex-environment #'org-typst-from-latex-with-naive
         org-typst-from-latex-fragment #'org-typst-from-latex-with-naive))
 
-;;; 4. CLEAN UP THE UI
-;; Hide the *bold* and /italic/ markers so you just see the style
-(setq org-hide-emphasis-markers t)
-;; Make LaTeX previews a bit larger so they match the text
-(setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
+;; Clean org UI
+(setq org-hide-emphasis-markers t
+      org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
 
-;; Org configuration
 (with-eval-after-load 'org
   (setq org-directory (expand-file-name "~/org")
         org-default-notes-file (concat org-directory "/inbox.org")
         org-agenda-files (list org-directory))
-
-  ;; Create org directory if it doesn't exist
-  (unless (file-directory-p org-directory)
-    (make-directory org-directory t))
+  (make-directory org-directory t)
 
   (setq org-display-inline-images t
         org-redisplay-inline-images t
         org-ellipsis "..."
         org-log-done 'time
-        org-hide-emphasis-markers t
         org-startup-indented t
         org-startup-folded 'content)
 
   (use-package org-superstar
-  :ensure t
-  :hook (org-mode . org-superstar-mode)
-  :config
-  ;; 2. Replace the bullets with a simple space string
-  (setq org-superstar-headline-bullets-list '(" " " " " " " ")))
-  
-  ;; TODO keywords
+    :hook (org-mode . org-superstar-mode)
+    :config (setq org-superstar-headline-bullets-list '(" " " " " " " ")))
+
   (setq org-todo-keywords
         '((sequence "TODO(t)" "NEXT(n)" "WAIT(w)" "|" "DONE(d)" "CANCELLED(c)")))
 
-  ;; Capture templates
   (setq org-capture-templates
         '(("t" "Todo" entry (file+headline org-default-notes-file "Tasks")
            "* TODO %?\n  %i\n  %a")
           ("n" "Note" entry (file+headline org-default-notes-file "Notes")
            "* %?\n  %i\n  %a")))
 
-  ;; LaTeX preview settings
-  (setq org-format-latex-options
-        (plist-put org-format-latex-options :scale 1.5))
-
-  ;; Source code blocks
   (setq org-src-tab-acts-natively t
         org-src-fontify-natively t
         org-src-preserve-indentation t
         org-edit-src-content-indentation 0)
 
-  ;; Babel languages
   (org-babel-do-load-languages
    'org-babel-load-languages
-   '((emacs-lisp . t)
-     (python . t)
-     (ditaa . t)
-     (shell . t))))
+   '((emacs-lisp . t) (python . t) (ditaa . t) (shell . t))))
 
-(setq org-ditaa-jar-path "/opt/homebrew/bin/ditaa")
-(setq org-babel-python-command "/opt/homebrew/bin/python3")
+(setq org-ditaa-jar-path "/opt/homebrew/bin/ditaa"
+      org-babel-python-command "/opt/homebrew/bin/python3")
 
-;; Evil-org integration
 (use-package evil-org
   :after (org evil)
   :hook (org-mode . evil-org-mode)
   :config
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
-#+end_src
 
-** Denote Note Taking
-#+begin_src emacs-lisp
+;; ── Denote ──
 (use-package denote
   :commands (denote denote-link denote-backlinks)
   :hook (dired-mode . denote-dired-mode)
-  :bind
-  (("C-c n n" . denote)
-   ("C-c n r" . denote-rename-file)
-   ("C-c n l" . denote-link)
-   ("C-c n b" . denote-backlinks))
+  :bind (("C-c n n" . denote) ("C-c n r" . denote-rename-file)
+         ("C-c n l" . denote-link) ("C-c n b" . denote-backlinks))
   :config
   (setq denote-directory (expand-file-name "~/Documents/notes/"))
   (denote-rename-buffer-mode 1))
-#+end_src
 
-** Ox-hugo
-#+begin_src emacs-lisp
-(use-package ox-hugo
-  :after ox)
-#+end_src
+;; ── Export backends ──
+(use-package ox-hugo :after ox)
 
-** Ox-latex
-
-#+begin_src emacs-lisp
 (with-eval-after-load 'ox-latex
-  ;; Use minted for code blocks
   (setq org-latex-listings 'minted)
-
-  ;; Add the minted package to all LaTeX exports
   (add-to-list 'org-latex-packages-alist '("" "minted"))
-
-  ;; Configure the PDF generation command to allow shell escape
-  ;; (REQUIRED for minted to call Python)
+  (add-to-list 'org-latex-packages-alist '("" "listings"))
+  (add-to-list 'org-latex-packages-alist '("" "color"))
   (setq org-latex-pdf-process
         '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
           "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
           "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
-  (setq org-latex-listings t)
-(add-to-list 'org-latex-packages-alist '("" "listings"))
-(add-to-list 'org-latex-packages-alist '("" "color"))
-
-
-  
   (add-to-list 'org-latex-classes
-               '("ieee"
-                 "\\documentclass{IEEEtran}"
+               '("ieee" "\\documentclass{IEEEtran}"
                  ("\\section{%s}" . "\\section*{%s}")
                  ("\\subsection{%s}" . "\\subsection*{%s}")
                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
                  ("\\paragraph{%s}" . "\\paragraph*{%s}")
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 
-
-#+end_src
-** Jupyter Notebook
-#+begin_src emacs-lisp
+;; ── Jupyter ──
 (use-package jupyter
   :defer t
   :config
   (setq jupyter-server-use-environment-path t)
-  
   (with-eval-after-load 'org
     (org-babel-do-load-languages
      'org-babel-load-languages
-     (append org-babel-load-languages
-             '((jupyter . t))))))
+     (append org-babel-load-languages '((jupyter . t))))))
+
+;; ── Slides ──
+(use-package org-tree-slide)
+(use-package ox-reveal)
 #+end_src
 
-** LaTeX Preview in Any Buffer
+* LaTeX
 #+begin_src emacs-lisp
-;; texfrag - Inline LaTeX preview for any buffer
+;; ── AUCTeX ──
+(use-package auctex
+  :defer t
+  :hook (LaTeX-mode . (lambda () (reftex-mode t) (flyspell-mode t) (LaTeX-math-mode t)))
+  :config
+  (setq TeX-auto-save t TeX-parse-self t TeX-PDF-mode t TeX-master nil
+        TeX-source-correlate-mode t TeX-source-correlate-method 'synctex))
+
+(use-package reftex :defer t :config (setq reftex-plug-into-AUCTeX t))
+
+;; ── Citar ──
+(use-package citar
+  :custom (citar-bibliography '("~/Documents/Research Projects/bib/references.bib"))
+  :hook ((LaTeX-mode org-mode) . citar-capf-setup))
+
+;; ── texfrag (LaTeX preview in any buffer) ──
 (use-package texfrag
   :commands (texfrag-mode texfrag-document texfrag-clear-document)
-  :config
-  (define-key texfrag-mode-map (kbd "C-c C-x C-l") 'texfrag-document))
+  :config (define-key texfrag-mode-map (kbd "C-c C-x C-l") 'texfrag-document))
 
-;; Track texfrag preview state
-(defvar-local my-texfrag-previews-active nil
-  "Whether texfrag previews are currently shown.")
+(defvar-local my-texfrag-previews-active nil)
 
-;; Function to toggle LaTeX preview in any buffer
 (defun my-latex-preview-toggle ()
   "Toggle LaTeX preview in current buffer."
   (interactive)
   (cond
-   ((derived-mode-p 'org-mode)
-    ;; Use org's built-in preview for org-mode
-    (call-interactively 'org-latex-preview))
+   ((derived-mode-p 'org-mode) (call-interactively 'org-latex-preview))
    ((bound-and-true-p texfrag-mode)
     (if my-texfrag-previews-active
-        (progn
-          (texfrag-clear-document)
-          (setq my-texfrag-previews-active nil)
-          (message "LaTeX previews cleared"))
-      (progn
-        (texfrag-document)
-        (setq my-texfrag-previews-active t)
-        (message "LaTeX previews rendered"))))
-   (t
-    (message "Enable texfrag-mode first (M-x texfrag-mode)"))))
+        (progn (texfrag-clear-document) (setq my-texfrag-previews-active nil) (message "Previews cleared"))
+      (progn (texfrag-document) (setq my-texfrag-previews-active t) (message "Previews rendered"))))
+   (t (message "Enable texfrag-mode first (M-x texfrag-mode)"))))
 
-;; Global keybinding for LaTeX preview
 (global-set-key (kbd "C-c l p") 'my-latex-preview-toggle)
-
-
-
 #+end_src
 
-
-** slides
-#+begin_src emacs-lisp
-(use-package org-tree-slide
-  :straight t)
-
-(use-package ox-reveal
-  :straight t)
-
-#+end_src
-** Auctex
-#+begin_src emacs-lisp
-(use-package auctex
-  :ensure t
-  :defer t
-  :hook 
-  (LaTeX-mode . (lambda ()
-                  (reftex-mode t)       ; Turn on RefTeX for bibliographies
-                  (flyspell-mode t)     ; Turn on on-the-fly spell checking
-                  (LaTeX-math-mode t))) ; Enable easier math symbol insertion
-  :config
-  ;; Enable saving of parsed information (essential for referencing)
-  (setq TeX-auto-save t)
-  (setq TeX-parse-self t)
-
-  ;; Default to PDF generation instead of DVI
-  (setq TeX-PDF-mode t)
-
-  ;; Ask for the "Master" file. 
-  ;; Useful for multi-file documents (like a thesis) where you edit a chapter
-  ;; but want to compile the main.tex file.
-  (setq TeX-master nil)
-
-  ;; correlate the source and the output (SyncTeX)
-  ;; Allows you to Ctrl+Click in PDF to jump to code, and vice versa.
-  (setq TeX-source-correlate-mode t)
-  (setq TeX-source-correlate-method 'synctex))
-
-;; Optional: Configure RefTeX to play nice with AUCTeX
-(use-package reftex
-  :ensure t
-  :defer t
-  :config
-  (setq reftex-plug-into-AUCTeX t))
-
-(use-package mixed-pitch
-  :ensure t
-  :hook
-  ;; Use mixed-pitch-mode in LaTeX-mode (AUCTeX) and standard latex-mode
-  ((LaTeX-mode . mixed-pitch-mode)
-   (latex-mode . mixed-pitch-mode))
-  :config
-  ;; Add LaTeX-specific faces to the list of faces that should REMAIN fixed-pitch
-  ;; This prevents math and code macros from becoming variable-pitch.
-  (dolist (face '(font-latex-math-face
-                  font-latex-sedate-face
-                  font-latex-warning-face
-                  font-latex-verbatim-face
-                  font-latex-script-char-face))
-    (add-to-list 'mixed-pitch-fixed-pitch-faces face)))
-
-#+end_src
-** Bib Latex
-#+begin_src emacs-lisp
-(use-package citar
-  :custom
-  (citar-bibliography '("~/Documents/Research Projects/bib/references.bib"))
-  :hook
-  (LaTeX-mode . citar-capf-setup)
-  (org-mode . citar-capf-setup))
-
-#+end_src
 * PDF Support
 #+begin_src emacs-lisp
 (use-package pdf-tools
@@ -1075,10 +795,6 @@ Compatible with Emacs 30.
   :config
   (pdf-tools-install :no-query)
   (setq-default pdf-view-display-size 'fit-width)
-
-  (setq pdf-view-midnight-colors 
-        `(,(face-foreground 'default) . ,(face-background 'default)))
-
   (add-hook 'pdf-view-mode-hook
             (lambda ()
               (setq pdf-view-midnight-colors
@@ -1086,18 +802,6 @@ Compatible with Emacs 30.
               (pdf-view-midnight-minor-mode))))
 #+end_src
 
-* Performance Optimization
 #+begin_src emacs-lisp
-;; Increase the amount of data Emacs reads from processes
-(setq read-process-output-max (* 1024 1024)) ; 1MB
-
-;; Eglot performance (already configured above, but good to document)
-;; - eglot-events-buffer-size set to 0
-;; - eglot-autoshutdown enabled
-;; - jsonrpc logging disabled
-
-;; Faster project indexing
-(setq projectile-enable-caching t)
-
 (message "Init loaded successfully!")
 #+end_src
